@@ -3,9 +3,9 @@ Repo for the Highway Department client thing.
 
 # To Do List:
 <p>*Modules:*
-<p></p>-AutoHighway: (Auto builds highways) -visuals that don't lag the game -drawSolidBox visuals -make it more afkAbble -get it to work on cpe lol -fix it again...
-<p></p>-Excavator: (Auto mines out a tunnel for the highway) -Change the instamine with actuall mine
-<p></p>-FallSave: (Tps you back to where you where when you fall) 
+<p>-AutoHighway: (Auto builds highways) -visuals that don't lag the game -drawSolidBox visuals -make it more afkAbble -get it to work on cpe lol -fix it again...
+<p>-Excavator: (Auto mines out a tunnel for the highway) -Change the instamine with actuall mine
+<p>-FallSave: (Tps you back to where you where when you fall) 
 -AutoGapple: -add when effect disapears options
 -AutoLog: -Make it actually log you lol -Add an afkLog option
 -[to be added]Shulker ToolTips: -the whole thing
