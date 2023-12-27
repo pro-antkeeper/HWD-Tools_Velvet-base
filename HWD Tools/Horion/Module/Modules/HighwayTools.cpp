@@ -1,4 +1,4 @@
-#include "HighwayTools.h"
+/*#include "HighwayTools.h"
 
 HighwayTools::HighwayTools() : IModule(0, Category::PLAYER, "Builds highways automatically. Made for HWD by J") {
 	registerBoolSetting("Auto Switch", &autoswitch, &autoswitch);
@@ -115,7 +115,7 @@ void HighwayTools::onTick(C_GameMode* gm) { // dynamic highway schem position & 
 		}
 
 		if (autocenter) {
-			if (!Player->isJumping() && moduleMgr->getModule<HighwayTools>()->pressed == false); {
+			if (!Player->isJumping() && moduleMgr->getModule<HighwayTools>()->pressed == false) {
 				vec3_t yR = vec3_t(floor(g_Data.getLocalPlayer()->getPos()->x), g_Data.getLocalPlayer()->getPos()->y, floor(g_Data.getLocalPlayer()->getPos()->z));
 				yR.x += 0.5f;
 				yR.z += 0.5f;
@@ -910,7 +910,7 @@ void HighwayTools::initializeSchematic() { // schematics for different types of 
 			baseSchematic.push_back(vec3_ti(-5, -1, 6));
 		}
 	}
-}
+}*/
 
 
 
