@@ -4,7 +4,6 @@
 #include "../ModuleManager.h"
 #include "Module.h"
 #include "../../DrawUtils.h"
-#include <thread> // Add this include for sleep_for
 class AutoHighway : public IModule {
 private:
 	vec3_t startBuildPos;
@@ -21,7 +20,7 @@ private:
 	bool xminus = false;
 	bool zminus = false;
 	bool railings = true;
-	int visualrange = 6;
+	int visualrange2 = 3;
 	bool visualize = true;
 	int length = 10000;
 	int width = 5;
@@ -430,34 +429,28 @@ public:
 						if (foundCandidate) {
 							vec3_ti beforethingy = vec3_ti(blok.x, blok.y, blok.z);
 							vec3_ti* thingy = &beforethingy;
-
-							g_Data.getCGameMode()->buildBlock(thingy, i, 0);
-
-							blockPlaced[i] = true;
+							g_Data.getCGameMode()->buildBlock(thingy, i, 0); //what fucking number
 							break;
 						}
-						
+					}
+					else {
+						currentSchematic.erase(currentSchematic.begin() + i--);
 					}
 				}
-				else {
-					currentSchematic.erase(currentSchematic.begin() + i--);
-				}
-			}
 
-			if (currentSchematic.empty()) {
-
-				if (std::all_of(blockPlaced.begin(), blockPlaced.end(), [](bool placed) { return placed; })) {
+				if (currentSchematic.empty()) {
 					g_Data.getGuiData()->displayClientMessageF("%sFinished building!", GREEN);
 					setEnabled(false);
 				}
 			}
 		}
 	}
+
 	void AutoHighway::onPostRender(C_MinecraftUIRenderContext* renderCtx) { // visuals
 		C_LocalPlayer* Player = g_Data.getLocalPlayer();
 		if (Player != nullptr && g_Data.isInGame() && GameData::canUseMoveKeys()) {
-			vec3_t myPos = *Player->getPos();
-			C_PlayerInventoryProxy* supplies = Player->getSupplies();
+			vec3_t myPos = Player->getPos();
+			C_PlayerInventoryProxy supplies = Player->getSupplies(); //there should not be errors here, but there are... wtf did I fuck up this time smh
 			C_ItemStack* handItem = supplies->inventory->getItemStack(supplies->selectedHotbarSlot);
 
 			currentSchematic.push_back(startBuildPos);
@@ -465,7 +458,7 @@ public:
 			for (vec3_ti p : currentSchematic) {
 				vec3_t bp(p.x, p.y, p.z);
 				float dist = myPos.dist(bp.add(0.5f, 0.5f, 0.5f));
-				if (dist <= visualrange) {
+				if (dist <= visualrange2) {
 					DrawUtils::setColor(0.1, 0.6, 0.7, 0.8f);
 
 					if (visualize) {
