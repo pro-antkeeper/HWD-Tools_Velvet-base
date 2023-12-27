@@ -2,8 +2,6 @@
 #include "../ModuleManager.h"
 #include "Module.h"
 
-#
-
 class Scaffold : public IModule {
 private:
 	int offGroundTicks = 0;
