@@ -89,16 +89,6 @@ bool weLookForAGuy(C_Entity* curEnt, bool isRegularEntity)
 		return false;
 	if (!g_Data.getLocalPlayer()->isAlive())
 		return false;
-	if (curEnt->getEntityTypeId() == 71)
-		return false; // endcrystal
-	if (curEnt->getEntityTypeId() == 66)
-		return false; // falling block
-	if (curEnt->getEntityTypeId() == 64)
-		return false; // item
-	if (curEnt->getEntityTypeId() == 69)
-		return false; // xp orb
-	if (curEnt->width <= 0.01f || curEnt->height <= 0.01f)
-		return false; // Don't hit this pesky antibot on 2b2e.org
 
 	// float dist = (curEnt->getHumanPos()).dist(g_Data.getLocalPlayer()->getHumanPos());
 }
@@ -125,8 +115,6 @@ void Scaffold::onEnable()
 	canspoof = false;
 	rundown = 0;
 	PastedRadiumDelaySKULL = 0;
-	countopa = 0;
-	county = -128;
 	// if (av->lockis == true) lockY = true;
 	animFlareon = player->yawUnused1;
 	animFlareonPitch = player->pitch;
