@@ -1,8 +1,8 @@
-# HWD-Tools
-Repo for the Highway Department client thing.
+![Logo](https://cdn.discordapp.com/attachments/992610405719494768/1169306252145340476/HWD_Logo_Option_2.png?ex=659585cf&is=658310cf&hm=35ece143b62ee71d6500c5429412e8e4e0e0a7365df0c645219be14c485c2f15&)
+<p>
 
 # To Do List:
-<p> ## _ Modules: _
+## Modules:
 <p>-AutoHighway: (Auto builds highways) -visuals that don't lag the game -drawSolidBox visuals -make it more afkAbble -get it to work on cpe lol -fix it again...
 <p>-Excavator: (Auto mines out a tunnel for the highway) -Change the instamine with actuall mine
 <p>-FallSave: (Tps you back to where you where when you fall) 
@@ -24,8 +24,8 @@ Repo for the Highway Department client thing.
 <p>-**[to be added]CHONKY SCAFFOLD**: (scaffold but chonky, can place a 2x2 or 4x4 platform like scaffold etc)
 <p>-**[to be added]** auto hwd logo thing -skid that one thing
 <p>-**[to be added]** toggle sounds
-<p>-
-<p>##_Other things to do:_
+
+## Other things to do:
 <p>-Finish making the repo thing lol
 <p>-Fix arraylist
 <p>-Change the gui
