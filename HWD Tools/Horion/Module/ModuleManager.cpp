@@ -44,7 +44,7 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new Theme()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoHighway()));
 		moduleList.push_back(std::shared_ptr<IModule>(new yawLock()));
-		moduleList.push_back(std::shared_ptr<IModule>(new HighwayTools()));
+		//moduleList.push_back(std::shared_ptr<IModule>(new HighwayTools()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Excavator()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoLog()));
 
