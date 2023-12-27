@@ -41,8 +41,8 @@
 #include "Modules/Watermark.h"
 #include "Modules/Theme.h"
 #include "Modules/AutoHighway.h"
-#include "Modules/HighwayTools.h"
 #include "Modules/YawLock.h"
+//#include "Modules/HighwayTools.h"
 
 #ifdef _DEBUG
 #include "Modules/PacketLogger.h"
