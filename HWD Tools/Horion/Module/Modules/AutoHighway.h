@@ -392,13 +392,7 @@ public:
 			C_Inventory* inv = supplies->inventory;
 			C_ItemStack* handItem = inv->getItemStack(supplies->selectedHotbarSlot);
 
-			static std::vector<bool> blockPlaced(currentSchematic.size(), false); //new
-
 			for (int i = 0; i < currentSchematic.size(); i++) {
-				if (blockPlaced[i]) {
-					// If the block has been placed, move to the next one
-					continue;
-				}
 				vec3_t buildPos = currentSchematic.at(i);
 				if (Player->getPos()->dist(vec3_t(buildPos.x + 0.5f, buildPos.y + 0.5f, buildPos.z + 0.5f)) <= 4.5f) {
 					C_Block* block = Player->region->getBlock(buildPos);
@@ -446,7 +440,7 @@ public:
 		}
 	}
 
-	void AutoHighway::onPostRender(C_MinecraftUIRenderContext* renderCtx) { // visuals
+	/*void AutoHighway::onPostRender(C_MinecraftUIRenderContext* renderCtx) { // visuals
 		C_LocalPlayer* Player = g_Data.getLocalPlayer();
 		if (Player != nullptr && g_Data.isInGame() && GameData::canUseMoveKeys()) {
 			vec3_t myPos = Player->getPos();
@@ -467,5 +461,5 @@ public:
 				}
 			}
 		}
-	}
+	}*/
 };
