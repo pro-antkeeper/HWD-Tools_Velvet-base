@@ -7,8 +7,6 @@ private:
 	int offGroundTicks = 0;
 	bool uwu = false;
 	bool awa = false;
-	int countopa;
-	int county;
 	int intPosY = 0;
 	bool placeMoreUnder = false;
 	bool shouldSwing = false;
@@ -47,7 +45,7 @@ private:
 	int slot = 0;
 	float telly = 0.1;
 	int fakespoofticks = 0;
-	int rundown;
+	int rundown = 0;
 	vec3_t blockBelowY;
 
 	bool sneaking = false;
