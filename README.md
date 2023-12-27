@@ -15,8 +15,8 @@ Repo for the Highway Department client thing.
 <p>-Advertiser: (like spammer but advertises) -make it be able to detect when a player joins the server
 <p>-**[to be added]**Hotbar replenish that puts obi in all empty slots
 <p>-Inventory cleaner: -make it better
-<p>-~~Improve Pvpressources~~
-<p>-**[to be added]**Badges: (make all hwd employees have a pick beside their name and make em a dif color?)
+- [x]Improve Pvpressources
+- [ ]**[to be added]**Badges: (make all hwd employees have a pick beside their name and make em a dif color?)
 <p>-**[to be added]** Durability display
 <p>-**[to be added]** Alerts the user when a new player enters render distance
 <p>-**[to be added]** sesion info?
