@@ -32,7 +32,6 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new ChatSuffix()));
 		moduleList.push_back(std::shared_ptr<IModule>(new FallSave()));
 		moduleList.push_back(std::shared_ptr<IModule>(new EChestFarmer()));
-		moduleList.push_back(std::shared_ptr<IModule>(new AutoClicker()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Timer()));
 		moduleList.push_back(std::shared_ptr<IModule>(new NameTags()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Spammer()));
