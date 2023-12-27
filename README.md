@@ -24,6 +24,7 @@
 <p>-**[to be added]CHONKY SCAFFOLD**: (scaffold but chonky, can place a 2x2 or 4x4 platform like scaffold etc)
 <p>-**[to be added]** auto hwd logo thing -skid that one thing
 <p>-**[to be added]** toggle sounds
+<p>-
 
 ## Other things to do:
 <p>-Finish making the repo thing lol
@@ -34,3 +35,9 @@
 <p>-Replace all the velvet stuff with hwd stuff
 <p>-Make the client compatible with other client (last step)
 <p>-
+
+# Support
+<p>
+
+For support, or whatever join the discord if you are not there already. 
+<p></p>https://discord.com/invite/kxEZZBfVBD
