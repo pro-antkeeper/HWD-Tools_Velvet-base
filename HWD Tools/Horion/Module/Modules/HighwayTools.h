@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 #include <vector>
 #include "../../../Utils/HMath.h"
 #include "../../DrawUtils.h"
@@ -42,4 +42,4 @@ public:
 	void setStartBuildPos(const vec3_ti& startPos) {
 		startBuildPos = startPos;
 	}
-};
+};*/
