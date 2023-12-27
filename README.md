@@ -22,6 +22,7 @@
 <p>-[to be added] CHONKY SCAFFOLD: (scaffold but chonky, can place a 2x2 or 4x4 platform like scaffold etc)
 <p>-[to be added] auto hwd logo thing? -skid that one thing
 <p>-[to be added] Toggle sounds 
+<p>-Scaffold: -fix the visual stuff
 
 ## Other things to do:
 <p>-Finish making the repo thing lol
