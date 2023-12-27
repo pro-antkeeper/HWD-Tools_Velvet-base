@@ -20,7 +20,6 @@
 #include "Modules/AutoEZ.h"		  // funny    
 #include "Modules/Arraylist.h"
 
-#include "Modules/AutoClicker.h"
 #include "Modules/AutoGapple.h"
 #include "Modules/ClickGuiMod.h"
 #include "Modules/Placer.h"
