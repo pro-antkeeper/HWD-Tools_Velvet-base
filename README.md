@@ -9,14 +9,14 @@
 <p>-AutoGapple: -add when effect disapears options
 <p>-AutoLog: -Make it actually log you lol -Add an afkLog option
 <p>-**[to be added]**Shulker ToolTips: -the whole thing
-<p>-**[to be added]**Effect ToolTips: (displays the time remaining on the effects the player has)
+<p>- _[to be added]_ Effect ToolTips: (displays the time remaining on the effects the player has)
 <p>-E-Chest farmer: (Auto farms e chests) -Change the insta mine to normal mine -Place e-chests
 <p>-**[to be added]** Auto TNT thing 
 <p>-Advertiser: (like spammer but advertises) -make it be able to detect when a player joins the server
 <p>-**[to be added]**Hotbar replenish that puts obi in all empty slots
 <p>-Inventory cleaner: -make it better
-- [x]Improve Pvpressources
-- [ ]**[to be added]**Badges: (make all hwd employees have a pick beside their name and make em a dif color?)
+<p>-[x] Improve Pvpressources
+<p>-[ ] **[to be added]**Badges: (make all hwd employees have a pick beside their name and make em a dif color?)
 <p>-**[to be added]** Durability display
 <p>-**[to be added]** Alerts the user when a new player enters render distance
 <p>-**[to be added]** sesion info?
