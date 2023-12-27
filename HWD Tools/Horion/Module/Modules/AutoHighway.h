@@ -55,9 +55,11 @@ public:
 		}
 	}
 	void onEnable() {
+		g_Data.getGuiData()->displayClientMessageF("Auto Highway Enabled", BLUE);
 		getObby6();
 		setAutoBuildSlot = false;
 		schematic.clear();
+		onLevelRender();
 		if (xplus && zplus) {
 			for (int ii = 0; ii < length; ii++) {
 				if (width == 5) {
@@ -220,6 +222,7 @@ public:
 		}
 		else if (zplus) {
 			for (int i = 0; i < length; i++) {
+				g_Data.getGuiData()->displayClientMessageF("zplus", YELLOW);
 				if (width == 3) {
 					schematic.push_back(vec3_t(-1, -1, i));
 					schematic.push_back(vec3_t(0, -1, i));
@@ -355,7 +358,7 @@ public:
 					}
 				}
 			}
-		}
+		};
 
 		C_LocalPlayer* Player = g_Data.getLocalPlayer();
 		if (Player != nullptr) {
@@ -382,10 +385,12 @@ public:
 				Player->getSupplies()->selectedHotbarSlot = ogAutoHighwaySlot;
 			}
 		}
+		g_Data.getGuiData()->displayClientMessageF("Auto Highway Disabled", BLUE);
 	}
 
 	void onLevelRender() {
 		C_LocalPlayer* Player = g_Data.getLocalPlayer();
+		g_Data.getGuiData()->displayClientMessageF("#8", WHITE);
 		if (Player != nullptr) {
 			vec3_t myPos = *Player->getPos();
 			C_PlayerInventoryProxy* supplies = Player->getSupplies();
@@ -403,10 +408,16 @@ public:
 						vec3_t blockPosition(buildPos);
 						static std::vector<vec3_t*> checklist;
 						if (checklist.empty()) {
-							//add the other list somehow
+							checklist.push_back(new vec3_t(0, -1, 0));
+							checklist.push_back(new vec3_t(0, 1, 0));
+							checklist.push_back(new vec3_t(0, 0, -1));
+							checklist.push_back(new vec3_t(0, 0, 1));
+							checklist.push_back(new vec3_t(-1, 0, 0));
+							checklist.push_back(new vec3_t(1, 0, 0));
 						}
 						bool foundCandidate = false;
 						int i = 0;
+						g_Data.getGuiData()->displayClientMessageF("#5", WHITE);
 
 						for (auto current : checklist) {
 							vec3_t calc = blok.sub(*current);
@@ -426,6 +437,7 @@ public:
 							g_Data.getCGameMode()->buildBlock(thingy, i, 0); //what fucking number
 							break;
 						}
+						g_Data.getGuiData()->displayClientMessageF("#6", WHITE);
 					}
 					else {
 						currentSchematic.erase(currentSchematic.begin() + i--);
@@ -438,6 +450,7 @@ public:
 				}
 			}
 		}
+		g_Data.getGuiData()->displayClientMessageF("#9", WHITE);
 	}
 
 	/*void AutoHighway::onPostRender(C_MinecraftUIRenderContext* renderCtx) { // visuals
