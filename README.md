@@ -23,6 +23,7 @@
 <p>-[to be added] auto hwd logo thing? -skid that one thing
 <p>-[to be added] Toggle sounds 
 <p>-Scaffold: -fix the visual stuff
+<p>-ChatSuffix: -get it to work...
 
 ## Other things to do:
 <p>-Finish making the repo thing lol
