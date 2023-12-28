@@ -31,7 +31,6 @@
 <p>-Change the gui
 <p>-Add the draw solid box to the drawutils
 <p>-Yoink the semi instant packet mine somehow
-<p>-Replace all the velvet stuff with hwd stuff
 <p>-Make the client compatible with other client (last step)
 
 # Support
