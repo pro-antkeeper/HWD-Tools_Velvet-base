@@ -1,1 +1,1 @@
-bruh i forgor that the readme is still about horion 💀
+This is a highway department client 💀 https://discord.gg/d4nWyjMGGF
