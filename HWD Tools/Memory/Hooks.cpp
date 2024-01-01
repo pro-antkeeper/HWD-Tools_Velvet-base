@@ -1,4 +1,4 @@
-﻿#include "Hooks.h"
+#include "Hooks.h"
 
 #include <algorithm>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -58,10 +58,23 @@ void Hooks::Init() {
 			if (localPlayerVtable == 0x0 || sigOffset == 0x0)
 				logF("C_LocalPlayer signature not working!!!");
 			else {
+				g_Hooks.Actor_startSwimmingHook = std::make_unique<FuncHook>(localPlayerVtable[201], Hooks::Actor_startSwimming);
+
+				g_Hooks.Actor_ascendLadderHook = std::make_unique<FuncHook>(localPlayerVtable[339], Hooks::Actor_ascendLadder);
+				
+				g_Hooks.Actor__setRotHook = std::make_unique<FuncHook>(localPlayerVtable[27], Hooks::Actor__setRot);
+
+				g_Hooks.Actor_swingHook = std::make_unique<FuncHook>(localPlayerVtable[219], Hooks::Actor_swing);
+
+				g_Hooks.JumpPowerHook = std::make_unique<FuncHook>(localPlayerVtable[345], Hooks::JumpPower); //jump from ground with movement proxy
 
 				//g_Hooks.setPosHook = std::make_unique<FuncHook>(localPlayerVtable[19], Hooks::setPos);
 
 				g_Hooks.Actor_baseTickHook = std::make_unique<FuncHook>(localPlayerVtable[49], Hooks::Actor_baseTick);
+
+				g_Hooks.Mob__isImmobileHook = std::make_unique<FuncHook>(localPlayerVtable[91], Hooks::Mob__isImmobile);
+
+				g_Hooks.Actor_isInWaterHook = std::make_unique<FuncHook>(localPlayerVtable[71], Hooks::Actor_isInWater);
 
 				g_Hooks.Player_tickWorldHook = std::make_unique<FuncHook>(localPlayerVtable[364], Hooks::Player_tickWorld);
 
@@ -121,11 +134,39 @@ void Hooks::Init() {
 		void* render = reinterpret_cast<void*>(FindSignature("48 89 5C 24 18 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 48 8B DA 48 8B F9 B9 10 ? ? ?"));
 		g_Hooks.UIScene_renderHook = std::make_unique<FuncHook>(render, Hooks::UIScene_render);
 
+		void* fogColorFunc = reinterpret_cast<void*>(FindSignature("41 0F 10 08 48 8B C2 0F"));
+		g_Hooks.Dimension_getFogColorHook = std::make_unique<FuncHook>(fogColorFunc, Hooks::Dimension_getFogColor);
+
+			
+
 		/*void* testy = reinterpret_cast<void*>(FindSignature("48 8B 05 61 DF CD 02 48 85 C0 75 07"));
 		g_Hooks.testyHook = std::make_unique<FuncHook>(testy, Hooks::testy);*/
+		void* timeOfDay = reinterpret_cast<void*>(FindSignature("44 8B C2 B8 ? ? ? ? F7 EA"));
+		g_Hooks.Dimension_getTimeOfDayHook = std::make_unique<FuncHook>(timeOfDay, Hooks::Dimension_getTimeOfDay);
+
+		void* sunItensity = reinterpret_cast<void*>(FindSignature("48 89 5C 24 ? 57 48 83 EC 30 48 8B B9 ? ? ? ? 49 8B D8"));
+		g_Hooks.Dimension_getSunIntensityHook = std::make_unique<FuncHook>(sunItensity, Hooks::Dimension_getSunIntensity);
+
+		void* chestTick = reinterpret_cast<void*>(FindSignature("48 89 5C 24 ? 56 57 41 56 48 83 EC ? 48 83 79"));
+		g_Hooks.ChestBlockActor_tickHook = std::make_unique<FuncHook>(chestTick, Hooks::ChestBlockActor_tick);
+
+		void* lerpFunc = reinterpret_cast<void*>(FindSignature("8B 02 89 81 ? ? ? ? 8B 42 ? 89 81 ? ? ? ? 8B 42 ? 89 81 ? ? ? ? C3 CC CC CC CC CC 48 89 5C 24"));
+		g_Hooks.Actor_lerpMotionHook = std::make_unique<FuncHook>(lerpFunc, Hooks::Actor_lerpMotion);
+
+		void* getRenderLayer = reinterpret_cast<void*>(FindSignature("8B 81 ? ? ? ? C3 CC CC CC CC CC CC CC CC CC F3 0F 10 81"));
+		g_Hooks.BlockLegacy_getRenderLayerHook = std::make_unique<FuncHook>(getRenderLayer, Hooks::BlockLegacy_getRenderLayer);
+
+		void* getLightEmission = reinterpret_cast<void*>(FindSignature("0F B6 81 ? ? ? ? 88 02 48 8B C2"));
+		g_Hooks.BlockLegacy_getLightEmissionHook = std::make_unique<FuncHook>(getLightEmission, Hooks::BlockLegacy_getLightEmission);
 
 		//void* ascendLadder = reinterpret_cast<void*>(FindSignature("C7 81 ? ? ? ? ? ? ? ? C3 CC CC CC CC CC C7 81 ? ? ? ? ? ? ? ? C3 CC CC CC CC CC C7 81"));
 		//g_Hooks.Actor_ascendLadderHook = std::make_unique<FuncHook>(ascendLadder, Hooks::Actor_ascendLadder);
+
+		void* getGameEdition = reinterpret_cast<void*>(FindSignature("8B 91 ?? ?? ?? ?? 85 D2 74 1C 83 EA 01"));
+		g_Hooks.AppPlatform_getGameEditionHook = std::make_unique<FuncHook>(getGameEdition, Hooks::AppPlatform_getGameEdition);
+
+		uintptr_t** packetSenderVtable = reinterpret_cast<uintptr_t**>(*(uintptr_t*)g_Data.getClientInstance()->loopbackPacketSender);
+		g_Hooks.LoopbackPacketSender_sendToServerHook = std::make_unique<FuncHook>(packetSenderVtable[2], Hooks::LoopbackPacketSender_sendToServer);
 
 		void* getFov = reinterpret_cast<void*>(FindSignature("40 53 48 83 EC ?? 0F 29 7C 24 ?? 44"));
 		g_Hooks.LevelRendererPlayer_getFovHook = std::make_unique<FuncHook>(getFov, Hooks::LevelRendererPlayer_getFov);
@@ -136,14 +177,23 @@ void Hooks::Init() {
 		void* keyMouseFunc = reinterpret_cast<void*>(FindSignature("48 89 5C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 8B EC 48 81 EC ? ? ? ? 0F 29 74 24 ? 0F 29 7C 24 ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 ? 49 8B F0"));
 		g_Hooks.HIDController_keyMouseHook = std::make_unique<FuncHook>(keyMouseFunc, Hooks::HIDController_keyMouse);
 
+		void* renderLevel = reinterpret_cast<void*>(FindSignature("48 89 5C 24 10 48 89 74 24 20 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 49 8B F8 48 8B DA"));
+		g_Hooks.LevelRenderer_renderLevelHook = std::make_unique<FuncHook>(renderLevel, Hooks::LevelRenderer_renderLevel);
+
 		void* playerCallBackHook = reinterpret_cast<void*>(FindSignature("F3 0F ?? ?? ?? ?? 00 00 ?? 0F ?? 00 F3 0F ?? ?? F3 0F ?? ?? 04"));
 		g_Hooks.playerCallBack_Hook = std::make_unique<FuncHook>(playerCallBackHook, Hooks::playerCallBack);
 
 		void* clickHook = reinterpret_cast<void*>(FindSignature("48 8B C4 48 89 58 ? 48 89 68 ? 48 89 70 ? 57 41 54 41 55 41 56 41 57 48 83 EC ? 44 0F B7 BC 24 ? ? ? ? 48 8B D9"));
 		g_Hooks.ClickFuncHook = std::make_unique<FuncHook>(clickHook, Hooks::ClickFunc);
 
+		void* chestScreenControllerTick = reinterpret_cast<void*>(FindSignature("48 89 5C 24 ? 57 48 83 EC ? 48 8B F9 E8 ? ? ? ? 48 8B 17"));
+		g_Hooks.ChestScreenController_tickHook = std::make_unique<FuncHook>(chestScreenControllerTick, Hooks::ChestScreenController_tick);
+
 		void* autoComplete = reinterpret_cast<void*>(FindSignature("48 89 5C 24 ? 55 56 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 44 24 ? 41 8B D9"));
 		g_Hooks.PleaseAutoCompleteHook = std::make_unique<FuncHook>(autoComplete, Hooks::PleaseAutoComplete);
+
+		void* fullbright = reinterpret_cast<void*>(FindSignature("48 83 EC ? 80 B9 ? ? ? ? ? 48 8D 54 24 ? 48 8B 01 74 ? 41 B8 ? ? ? ? FF 50 ? 48 8B 10 48 85 D2 74 ? 48 8B 42 ? 48 8B 88 ? ? ? ? 48 85 C9 74 ? E8 ? ? ? ? 48 83 C4 ? C3 F3 0F 10 42 ? 48 83 C4 ? C3 41 B8 ? ? ? ? FF 50 ? 48 8B 10 48 85 D2 75 ? E8 ? ? ? ? CC E8 ? ? ? ? CC CC CC CC CC CC CC CC CC CC F3 0F 11 4C 24"));
+		g_Hooks.GetGammaHook = std::make_unique<FuncHook>(fullbright, Hooks::GetGamma);
 
 		void* RakNetInstance__tick = reinterpret_cast<void*>(FindSignature("48 89 5C 24 10 48 89 74 24 18 55 57 41 54 41 56 41 57 48 8D AC 24 20 FD FF FF 48 81 EC E0 03 00 00"));
 		g_Hooks.RakNetInstance_tickHook = std::make_unique<FuncHook>(RakNetInstance__tick, Hooks::RakNetInstance_tick);
@@ -178,12 +228,30 @@ void Hooks::Init() {
 
 		static auto bobViewHookF = [](__int64 _this, glm::mat4& matrix, float lerpT){
 			static auto origFunc = g_Hooks.lambdaHooks.at(lambda_counter)->GetFastcall<void, __int64, glm::mat4&, float>();
+			
+			static auto testMod = moduleMgr->getModule<ViewModel>();
+			auto p = g_Data.getLocalPlayer();
+			float degrees = fmodf(p->getPosOld()->lerp(p->getPos(), lerpT).x, 5) - 2.5f;
+			degrees *= 180 / 2.5f;
 
 			auto pos = g_Data.getClientInstance()->levelRenderer->getOrigin();
 			
 			glm::mat4 View = matrix;
+			
+			matrix = View;
+			if (testMod->isEnabled()) {
+				if (testMod->doTranslate)
+					matrix = glm::translate<float>(matrix, glm::vec3(testMod->xTrans, testMod->yTrans, testMod->zTrans));
+
+				if (testMod->doScale)
+					matrix = glm::scale<float>(matrix, glm::vec3(testMod->xMod, testMod->yMod, testMod->zMod));
+			}
 			return origFunc(_this, matrix, lerpT);
 		};
+		
+		std::shared_ptr<FuncHook> bobViewHook = std::make_shared<FuncHook>(levelRendererBobView, (decltype(&bobViewHookF.operator()))bobViewHookF);
+
+		g_Hooks.lambdaHooks.push_back(bobViewHook);
 
 		#undef lambda_counter
 		
@@ -592,6 +660,14 @@ __int64 Hooks::RenderText(__int64 a1, C_MinecraftUIRenderContext* renderCtx) {
 								this->backingModule = mod;
 								this->pos = mod->getPos();
 
+								if (keybind == 0x0)
+									moduleName = moduleNameChr;
+								else {
+									char text[50];
+									sprintf_s(text, 50, "%s%s", moduleNameChr, hudModule->keybinds ? std::string(" [" + std::string(Utils::getKeybindName(keybind)) + "]").c_str() : "");
+									moduleName = text;
+								}
+
 								if (!this->enabled && *this->pos == vec2_t(0.f, 0.f))
 									this->shouldRender = false;
 								this->textWidth = DrawUtils::getTextWidth(&moduleName, hudModule->scale);
@@ -821,6 +897,103 @@ __int64 Hooks::RenderText(__int64 a1, C_MinecraftUIRenderContext* renderCtx) {
 	}
 }
 
+float* Hooks::Dimension_getFogColor(__int64 _this, float* color, __int64 a3, float a4) {
+	static auto oGetFogColor = g_Hooks.Dimension_getFogColorHook->GetFastcall<float*, __int64, float*, __int64, float>();
+
+	static float rcolors[4];
+
+	static auto nightMod = moduleMgr->getModule<NightMode>();
+	if (nightMod->isEnabled()) {
+		color[0] = 0.f;
+		color[1] = 0.f;
+		color[2] = 0.2f;
+		color[3] = 1;
+		return color;
+	}
+
+	static auto rainbowSkyMod = moduleMgr->getModule<RainbowSky>();
+	if (rainbowSkyMod->isEnabled()) {
+		if (rcolors[3] < 1) {
+			rcolors[0] = 1;
+			rcolors[1] = 0.2f;
+			rcolors[2] = 0.2f;
+			rcolors[3] = 1;
+		}
+
+		Utils::ColorConvertRGBtoHSV(rcolors[0], rcolors[1], rcolors[2], rcolors[0], rcolors[1], rcolors[2]);  // perfect code, dont question this
+
+		rcolors[0] += 0.001f;
+		if (rcolors[0] >= 1)
+			rcolors[0] = 0;
+
+		Utils::ColorConvertHSVtoRGB(rcolors[0], rcolors[1], rcolors[2], rcolors[0], rcolors[1], rcolors[2]);
+
+		return rcolors;
+	}
+	return oGetFogColor(_this, color, a3, a4);
+}
+
+float Hooks::Dimension_getTimeOfDay(__int64 _this, int a2, float a3) {
+	static auto oGetTimeOfDay = g_Hooks.Dimension_getTimeOfDayHook->GetFastcall<float, __int64, int, float>();
+
+	static auto timeChange = moduleMgr->getModule<TimeChanger>();
+	if (timeChange->isEnabled()) {
+		return timeChange->modifier;
+	}
+
+	return oGetTimeOfDay(_this, a2, a3);
+}
+
+float Hooks::Dimension_getSunIntensity(__int64 a1, float a2, vec3_t* a3, float a4) {
+	static auto oGetSunIntensity = g_Hooks.Dimension_getSunIntensityHook->GetFastcall<float, __int64, float, vec3_t*, float>();
+
+	static auto nightMod = moduleMgr->getModule<NightMode>();
+	if (nightMod->isEnabled()) {
+		return -0.5f;
+	}
+
+	return oGetSunIntensity(a1, a2, a3, a4);
+}
+
+void Hooks::ChestBlockActor_tick(C_ChestBlockActor* _this, void* a) {
+	static auto oTick = g_Hooks.ChestBlockActor_tickHook->GetFastcall<void, C_ChestBlockActor*, void*>();
+	oTick(_this, a);
+	static auto* storageEspMod = moduleMgr->getModule<StorageESP>();
+	if (_this != nullptr && storageEspMod->isEnabled())
+		GameData::addChestToList(_this);
+}
+
+void Hooks::Actor_lerpMotion(C_Entity* _this, vec3_t motVec) {
+	static auto oLerp = g_Hooks.Actor_lerpMotionHook->GetFastcall<void, C_Entity*, vec3_t>();
+
+	if (g_Data.getLocalPlayer() != _this)
+		return oLerp(_this, motVec);
+
+	static auto noKnockbackmod = moduleMgr->getModule<Velocity>();
+	if (noKnockbackmod->isEnabled()) {
+		static void* networkSender = nullptr;
+		if (!networkSender)
+			networkSender = reinterpret_cast<void*>(9 + FindSignature("48 8B CB FF ?? ?? ?? ?? 00 C6 47 ?? 01 48 8B 5C 24"));
+
+		if (networkSender == _ReturnAddress()) {
+			motVec = _this->velocity.lerp(motVec, noKnockbackmod->xModifier, noKnockbackmod->yModifier, noKnockbackmod->xModifier);
+		}
+	}
+
+	oLerp(_this, motVec);
+}
+
+int Hooks::AppPlatform_getGameEdition(__int64 _this) {
+	static auto oGetEditon = g_Hooks.AppPlatform_getGameEditionHook->GetFastcall<signed int, __int64>();
+
+	static auto mod = moduleMgr->getModule<EditionFaker>();
+	if (mod->isEnabled()) {
+		return mod->getFakedEditon();
+	}
+
+	return oGetEditon(_this);
+}
+
 void Hooks::PleaseAutoComplete(__int64 a1, __int64 a2, TextHolder* text, int a4) {
 	static auto oAutoComplete = g_Hooks.PleaseAutoCompleteHook->GetFastcall<void, __int64, __int64, TextHolder*, int>();
 	char* tx = text->getText();
@@ -920,6 +1093,77 @@ void Hooks::PleaseAutoComplete(__int64 a1, __int64 a2, TextHolder* text, int a4)
 	oAutoComplete(a1, a2, text, a4);
 }
 
+void Hooks::LoopbackPacketSender_sendToServer(C_LoopbackPacketSender* a, C_Packet* packet) {
+	static auto oFunc = g_Hooks.LoopbackPacketSender_sendToServerHook->GetFastcall<void, C_LoopbackPacketSender*, C_Packet*>();
+
+	static auto autoSneakMod = moduleMgr->getModule<AutoSneak>();
+	static auto freecamMod = moduleMgr->getModule<Freecam>();
+	static auto blinkMod = moduleMgr->getModule<Blink>();
+	static auto noPacketMod = moduleMgr->getModule<NoPacket>();
+	static auto instabreakMod = moduleMgr->getModule<InstaBreak>();
+	static auto pm = moduleMgr->getModule<FastXPtwo>();
+
+	if (noPacketMod->isEnabled() && g_Data.isInGame())
+		return;
+
+	if (freecamMod->isEnabled() || blinkMod->isEnabled()) {
+		if (packet->isInstanceOf<C_MovePlayerPacket>() || packet->isInstanceOf<PlayerAuthInputPacket>()) {
+			if (blinkMod->isEnabled()) {
+				if (packet->isInstanceOf<C_MovePlayerPacket>()) {
+					C_MovePlayerPacket* meme = reinterpret_cast<C_MovePlayerPacket*>(packet);
+					meme->onGround = true;                                                            //Don't take Fall Damages when turned off
+					blinkMod->getMovePlayerPacketHolder()->push_back(new C_MovePlayerPacket(*meme));  // Saving the packets
+				} else {
+					blinkMod->getPlayerAuthInputPacketHolder()->push_back(new PlayerAuthInputPacket(*reinterpret_cast<PlayerAuthInputPacket*>(packet)));
+				}
+			}
+			return;  // Dont call LoopbackPacketSender_sendToServer
+		}
+	} else if (!blinkMod->isEnabled()) {
+		if (blinkMod->getMovePlayerPacketHolder()->size() > 0) {
+			for (auto it : *blinkMod->getMovePlayerPacketHolder()) {
+				oFunc(a, (it));
+				delete it;
+				it = nullptr;
+			}
+			blinkMod->getMovePlayerPacketHolder()->clear();
+			return;
+		}
+		if (blinkMod->getPlayerAuthInputPacketHolder()->size() > 0) {
+			for (auto it : *blinkMod->getPlayerAuthInputPacketHolder()) {
+				oFunc(a, (it));
+				delete it;
+				it = nullptr;
+			}
+			blinkMod->getPlayerAuthInputPacketHolder()->clear();
+			return;
+		}
+	}
+
+	if (autoSneakMod->isEnabled() && g_Data.getLocalPlayer() != nullptr && autoSneakMod->doSilent && packet->isInstanceOf<C_PlayerActionPacket>()) {
+		auto* pp = reinterpret_cast<C_PlayerActionPacket*>(packet);
+
+		if (pp->action == 12 && pp->entityRuntimeId == g_Data.getLocalPlayer()->entityRuntimeId)
+			return;  //dont send uncrouch
+	}
+
+	moduleMgr->onSendPacket(packet);
+
+	/*if (strcmp(packet->getName()->getText(), "EmotePacket") == 0) {
+		auto varInt = reinterpret_cast<__int64*>(reinterpret_cast<__int64>(packet) + 0x28);
+		auto text = reinterpret_cast<TextHolder*>(reinterpret_cast<__int64>(packet) + 0x30);
+		auto bet = reinterpret_cast<unsigned char*>(reinterpret_cast<__int64>(packet) + 0x50);
+		logF("emote %llX %s %i", *varInt, text->getText(), *bet);
+	} fix emote crashing*/
+	auto* pp = reinterpret_cast<C_PlayerActionPacket*>(packet);
+	if ((pm->isEnabled() && pm->okPacketSent && !(packet->isInstanceOf<C_MovePlayerPacket>() && packet->isInstanceOf<PlayerAuthInputPacket>())) || (instabreakMod->isEnabled() && !(packet->isInstanceOf<C_MovePlayerPacket>() && packet->isInstanceOf<PlayerAuthInputPacket>()) && (pp->action == 2 && pp->entityRuntimeId == g_Data.getLocalPlayer()->entityRuntimeId))) {
+		for (int PacketMult = 0; PacketMult < pm->multiplier; PacketMult++)
+			oFunc(a, packet);
+	} else {
+		oFunc(a, packet);
+	}
+}
+
 float Hooks::LevelRendererPlayer_getFov(__int64 _this, float a2, bool a3) {
 	static auto oGetFov = g_Hooks.LevelRendererPlayer_getFovHook->GetFastcall<float, __int64, float, bool>();
 	return oGetFov(_this, a2, a3);
@@ -936,8 +1180,61 @@ void Hooks::MultiLevelPlayer_tick(C_EntityList* _this) {
 void Hooks::GameMode_startDestroyBlock(C_GameMode* _this, vec3_ti* a2, uint8_t face, void* a4, void* a5) {
 	static auto oFunc = g_Hooks.GameMode_startDestroyBlockHook->GetFastcall<void, C_GameMode*, vec3_ti*, uint8_t, void*, void*>();
 
+	static auto nukerModule = moduleMgr->getModule<Nuker>();
+	static auto instaBreakModule = moduleMgr->getModule<InstaBreak>();
 	//static auto packetMine = moduleMgr->getModule<PacketMine>();
 
+	if (nukerModule->isEnabled()) {
+		vec3_ti tempPos;
+
+		int range = nukerModule->getNukerRadius();
+		const bool isVeinMiner = nukerModule->isVeinMiner();
+		const bool isAutoMode = nukerModule->isAutoMode();
+
+		C_BlockSource* region = g_Data.getLocalPlayer()->region;
+		auto selectedBlockId = ((region->getBlock(*a2)->blockLegacy))->blockId;
+		uint8_t selectedBlockData = region->getBlock(*a2)->data;
+
+		if (!isAutoMode) {
+			for (int x = -range; x < range; x++) {
+				for (int y = -range; y < range; y++) {
+					for (int z = -range; z < range; z++) {
+						tempPos.x = a2->x + x;
+						tempPos.y = a2->y + y;
+						tempPos.z = a2->z + z;
+						if (tempPos.y > 0) {
+							C_Block* blok = region->getBlock(tempPos);
+							uint8_t data = blok->data;
+							auto id = blok->blockLegacy->blockId;
+							if (blok->blockLegacy->material->isSolid == true && (!isVeinMiner || (id == selectedBlockId && data == selectedBlockData)))
+								_this->destroyBlock(&tempPos, face);
+						}
+					}
+				}
+			}
+		}
+		return;
+	}
+	int Odelay = 0;
+	if (instaBreakModule->isEnabled() && instaBreakModule->Modes.GetSelectedEntry().GetValue() == 0) { // vanilla ib
+		_this->destroyBlock(a2, face);
+		return;
+	}
+	if (instaBreakModule->isEnabled() && instaBreakModule->Modes.GetSelectedEntry().GetValue() == 1) { // packet ib
+		if (g_Data.getLocalPlayer()->region->getBlock(*a2)->toLegacy()->blockId != 7) {  
+			_this->destroyBlock(a2, 0xFFFFFFFFFFFFFF);
+
+			return;
+		}
+	}
+	if (instaBreakModule->isEnabled() && instaBreakModule->Modes.GetSelectedEntry().GetValue() == 2) { // haste ib
+		Odelay++;
+		if (g_Data.getLocalPlayer()->region->getBlock(*a2)->toLegacy()->blockId != 7) {
+			if (Odelay == instaBreakModule->delay) _this->destroyBlock(a2, face);
+			if (Odelay == instaBreakModule->delay) Odelay = 0;
+			return;
+		}
+	}
 	/* if (packetMine->isEnabled() && (packetMine->mineNow)) {
 		_this->destroyBlock(&packetMine->currentBlock, face);
 		return;
@@ -952,6 +1249,76 @@ void Hooks::HIDController_keyMouse(C_HIDController* _this, void* a2, void* a3) {
 	isTicked = true;
 	oFunc(_this, a2, a3);
 	return;
+}
+
+int Hooks::BlockLegacy_getRenderLayer(C_BlockLegacy* a1) {
+	static auto oFunc = g_Hooks.BlockLegacy_getRenderLayerHook->GetFastcall<int, C_BlockLegacy*>();
+
+	static auto xrayMod = moduleMgr->getModule<Xray>();
+	if (xrayMod->isEnabled()) {
+		char* text = a1->name.getText();
+		if (strstr(text, "ore") == NULL)
+			if (strcmp(text, "lava") != NULL)
+				if (strcmp(text, "water") != NULL)
+					if (strcmp(text, "portal") != NULL)
+						if (strcmp(text, "amethyst_block") != NULL)
+							if (strcmp(text, "ancient_debris") != NULL)
+								if (strcmp(text, "command_block") != NULL)
+									if (strcmp(text, "repeating_command_block") != NULL)
+										if (strcmp(text, "chain_command_block") != NULL)
+											if (strcmp(text, "structure_block") != NULL)
+												if (strcmp(text, "deny") != NULL)
+													if (strcmp(text, "allow") != NULL)
+														if (strcmp(text, "bedrock") != NULL)
+															if (strcmp(text, "border_block") != NULL)
+																return 10;
+	}
+	return oFunc(a1);
+}
+
+__int8* Hooks::BlockLegacy_getLightEmission(C_BlockLegacy* a1, __int8* a2) {
+	static auto oFunc = g_Hooks.BlockLegacy_getLightEmissionHook->GetFastcall<__int8*, C_BlockLegacy*, __int8*>();
+
+	static auto xrayMod = moduleMgr->getModule<Xray>();
+	if (xrayMod->isEnabled()) {
+		*a2 = 15;
+		return a2;
+	}
+	return oFunc(a1, a2);
+}
+
+__int64 Hooks::LevelRenderer_renderLevel(__int64 _this, __int64 a2, __int64 a3) {
+	static auto oFunc = g_Hooks.LevelRenderer_renderLevelHook->GetFastcall<__int64, __int64, __int64, __int64>();
+
+	using reloadShit_t = void(__fastcall*)(__int64);
+	static reloadShit_t reloadChunk = nullptr;
+
+	if (!reloadChunk) {
+		// RenderChunkCoordinator::rebuildAllRenderChunkGeometry
+		reloadChunk = reinterpret_cast<reloadShit_t>(FindSignature("48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 44 24 ?? 48 8B F9 48 8D A9"));
+	}
+
+	static auto xrayMod = moduleMgr->getModule<Xray>();
+
+	static bool lastState = false;
+	if (lastState != xrayMod->isEnabled()) {
+		// LevelRenderer::rebuildAllRenderChunkGeometry
+		lastState = xrayMod->isEnabled();
+		unsigned long long* v5;  // rdi
+		unsigned long long* i;   // rbx
+
+		v5 = *(unsigned long long**)(_this + 32);
+		for (i = (unsigned long long*)*v5; i != v5; i = (unsigned long long*)*i)
+			reloadChunk(i[3]);
+	}
+
+	auto ret = oFunc(_this, a2, a3);
+
+	DrawUtils::setGameRenderContext(a2);
+	moduleMgr->onLevelRender();
+	DrawUtils::setGameRenderContext(0);
+
+	return ret;
 }
 
 void Hooks::ClickFunc(__int64 a1, char mouseButton, char isDown, __int16 mouseX, __int16 mouseY, __int16 relativeMovementX, __int16 relativeMovementY, char a8) {
@@ -993,6 +1360,121 @@ __int64 Hooks::MoveInputHandler_tick(C_MoveInputHandler* a1, C_Entity* a2) {
 	return 0;
 }
 
+__int64 Hooks::ChestScreenController_tick(C_ChestScreenController* a1) {
+	static auto oFunc = g_Hooks.ChestScreenController_tickHook->GetFastcall<__int64, C_ChestScreenController*>();
+
+	static auto chestStealerMod = moduleMgr->getModule<ChestStealer>();
+	if (chestStealerMod->isEnabled()) chestStealerMod->chestScreenController_tick(a1);
+
+	return oFunc(a1);
+}
+
+float Hooks::GetGamma(uintptr_t* a1) {
+	static auto fullbright = moduleMgr->getModule<FullBright>();
+	static auto xrayMod = moduleMgr->getModule<Xray>();
+	static auto nametagmod = moduleMgr->getModule<NameTags>();
+	static auto zoomMod = moduleMgr->getModule<Zoom>();
+
+	uintptr_t** list = (uintptr_t**)a1;
+
+	char obtainedSettings = 0;
+	bool hadIt = false;
+	for (uint16_t i = 3; i < 450; i++) {
+		if (list[i] == nullptr) continue;
+		uintptr_t* info = *(uintptr_t**)((uintptr_t)list[i] + 8);
+		if (info == nullptr) continue;
+
+		TextHolder* translateName = (TextHolder*)((uintptr_t)info + 0x1D8);
+		TextHolder* settingname = (TextHolder*)((uintptr_t)info + 0x188);
+
+		if (!strcmp(translateName->getText(), "options.smoothlighting")) {
+			if (hadIt) continue;
+			bool* smoothlightning = (bool*)((uintptr_t)list[i] + 16);
+			xrayMod->smoothLightningSetting = smoothlightning;
+			obtainedSettings++;
+			hadIt = true;
+		} else if (!strcmp(settingname->getText(), "gfx_ingame_player_names")) {
+			bool* ingamePlayerName = (bool*)((uintptr_t)list[i] + 16);
+			nametagmod->ingameNametagSetting = ingamePlayerName;
+			obtainedSettings++;
+		} else if (!strcmp(settingname->getText(), "gfx_field_of_view")) {
+			float* FieldOfView = (float*)((uintptr_t)list[i] + 24);
+			if (zoomMod->isEnabled())
+				zoomMod->OGFov = *FieldOfView;
+			// Zoom calc
+			{
+				static auto zoomModule = moduleMgr->getModule<Zoom>();
+				if (zoomModule->isEnabled()) zoomModule->target = zoomModule->strength;
+				zoomModule->modifier = zoomModule->target - ((zoomModule->target - zoomModule->modifier) * 0.8f);
+				if (abs(zoomModule->modifier - zoomModule->target) < 0.1f && !zoomModule->isEnabled())
+					zoomModule->zooming = false;
+			}
+			obtainedSettings++;
+		}
+		if (obtainedSettings == 3) break;
+	}
+
+	if (xrayMod->isEnabled())
+		return 25.f;
+
+	if (fullbright->isEnabled())
+		return fullbright->intensity;
+
+	static auto ofunc = g_Hooks.GetGammaHook->GetFastcall<float, uintptr_t*>();
+	return ofunc(a1);
+}
+
+bool Hooks::Actor_isInWater(C_Entity* _this) {
+	static auto oFunc = g_Hooks.Actor_isInWaterHook->GetFastcall<bool, C_Entity*>();
+
+	if (g_Data.getLocalPlayer() != _this)
+		return oFunc(_this);
+
+	static auto airSwimModule = moduleMgr->getModule<AirSwim>();
+	if (airSwimModule->isEnabled())
+		return true;
+
+	return oFunc(_this);
+}
+
+void Hooks::JumpPower(C_Entity* a1, float a2) {
+	static auto oFunc = g_Hooks.JumpPowerHook->GetFastcall<void, C_Entity*, float>();
+	static auto highJumpMod = moduleMgr->getModule<HighJump>();
+	if (highJumpMod->isEnabled() && g_Data.getLocalPlayer() == a1) {
+		a1->velocity.y = highJumpMod->jumpPower;
+		return;
+	}
+	oFunc(a1, a2);
+}
+
+
+void Hooks::Actor_ascendLadder(C_Entity* _this) {
+	static auto oFunc = g_Hooks.Actor_ascendLadderHook->GetFastcall<void, C_Entity*>();
+
+	static auto fastLadderModule = moduleMgr->getModule<FastLadder>();
+	if (fastLadderModule->isEnabled() && g_Data.getLocalPlayer() == _this) {
+		_this->velocity.y = fastLadderModule->speed;
+		return;
+	}
+	return oFunc(_this);
+}
+
+void Hooks::Actor_swing(C_Entity* _this) {
+	static auto oFunc = g_Hooks.Actor_swingHook->GetFastcall<void, C_Entity*>();
+	static auto noSwingMod = moduleMgr->getModule<NoSwing>();
+	if(!noSwingMod->isEnabled()) return oFunc(_this);
+}
+
+void Hooks::Actor_startSwimming(C_Entity* _this) {
+	static auto oFunc = g_Hooks.Actor_startSwimmingHook->GetFastcall<void, C_Entity*>();
+
+	static auto jesusModule = moduleMgr->getModule<Jesus>();
+	if (jesusModule->isEnabled() && g_Data.getLocalPlayer() == _this)
+		return;
+
+	oFunc(_this);
+}
+
 void Hooks::RakNetInstance_tick(C_RakNetInstance* _this, __int64 a2, __int64 a3) {
 	static auto oTick = g_Hooks.RakNetInstance_tickHook->GetFastcall<void, C_RakNetInstance*, __int64, __int64>();
 	GameData::setRakNetInstance(_this);
@@ -1007,6 +1489,9 @@ float Hooks::GameMode_getPickRange(C_GameMode* _this, __int64 a2, char a3) {
 		if (extendedBlockReachModule->isEnabled())
 			return extendedBlockReachModule->getBlockReach();
 
+		static auto teleportModule = moduleMgr->getModule<Teleport>();
+		if (teleportModule->isEnabled())
+			return 255;
 	}
 
 	return oFunc(_this, a2, a3);
@@ -1321,6 +1806,86 @@ void Hooks::LocalPlayer__updateFromCamera(__int64 a1, C_Camera* camera) {
 	*/
 	func(a1, camera);
 }
+bool Hooks::Mob__isImmobile(C_Entity* ent) {
+	auto func = g_Hooks.Mob__isImmobileHook->GetFastcall<bool, C_Entity*>();
+
+	static auto antiImmobileMod = moduleMgr->getModule<AntiImmobile>();
+	if (antiImmobileMod->isEnabled() && ent == g_Data.getLocalPlayer())
+		return false;
+
+	return func(ent);
+}
+
+void Hooks::Actor__setRot(C_Entity* _this, vec2_t& angle) {
+	auto func = g_Hooks.Actor__setRotHook->GetFastcall<void, C_Entity*, vec2_t&>();
+	auto killauraMod = moduleMgr->getModule<Killaura>();
+	auto freelookMod = moduleMgr->getModule<Freelook>();
+	auto jtwdCAMod = moduleMgr->getModule<CrystalPlace>();
+	auto jtwdBRMod = moduleMgr->getModule<CrystalBreak>();
+	auto surrMod = moduleMgr->getModule<Surround>();
+	auto aaMod = moduleMgr->getModule<Derp>();
+	auto rensurrMod = moduleMgr->getModule<RenSurround>();
+	auto hfMod = moduleMgr->getModule<HoleFiller>();
+	auto atMod = moduleMgr->getModule<AutoTrap>();
+
+	if (killauraMod->isEnabled() && !killauraMod->targetListEmpty && killauraMod->rotations && _this == g_Data.getLocalPlayer()) {
+		func(_this, angle = killauraMod->angle);
+	}
+	if (freelookMod->isEnabled() && g_Data.getLocalPlayer() == _this) {
+		func(_this, angle = freelookMod->oldPos);
+	}
+	if (jtwdCAMod->isEnabled() &&
+		jtwdCAMod->rotate.GetSelectedEntry().GetValue() == 1 &&
+		_this == g_Data.getLocalPlayer() && !jtwdCAMod->placeArrEmpty) {
+
+		func(_this, angle = jtwdCAMod->rotAngle);
+	}
+	if (jtwdBRMod->isEnabled() &&
+		jtwdBRMod->rotateBreak.GetSelectedEntry().GetValue() == 1 &&
+		_this == g_Data.getLocalPlayer() && !jtwdBRMod->breakArrEmpty) {
+
+		func(_this, angle = jtwdBRMod->rotAngleB);
+	}
+	if (jtwdCAMod->isEnabled() &&
+		jtwdCAMod->rotate.GetSelectedEntry().GetValue() == 3 && jtwdCAMod->rotUpNow &&
+		_this == g_Data.getLocalPlayer() && !jtwdCAMod->placeArrEmpty) {
+		func(_this, angle = vec2_t(-270, 0));
+	}
+
+	if (surrMod->isEnabled() && (surrMod->rotate.GetSelectedEntry().GetValue() == 1 || surrMod->rotate.GetSelectedEntry().GetValue() == 3) &&
+		_this == g_Data.getLocalPlayer() && surrMod->pn) {
+
+		if (surrMod->rotate.GetSelectedEntry().GetValue() == 3) {
+			for (int i = 0; i > -90; i--) {
+				func(_this, angle = vec2_t(i, 0));
+			}
+		}
+		else {
+			func(_this, angle = surrMod->rotAngle);
+		}
+	}
+
+	if (rensurrMod->isEnabled() && rensurrMod->enum3.GetSelectedEntry().GetValue() == 3 && _this == g_Data.getLocalPlayer() && rensurrMod->mustPitchUp) {
+		for (int i = 0; i > 270; i--) {
+			func(_this, angle = vec2_t(i, 0));
+		}
+	}
+
+	if (hfMod->isEnabled() && hfMod->attemptPitchUp && _this == g_Data.getLocalPlayer()) {
+		for (int i = 0; i > -90; i--) {
+			func(_this, angle = vec2_t(i, 0));
+		}
+	}
+
+	if (atMod->isEnabled() && atMod->mustGoUp && _this == g_Data.getLocalPlayer()) {
+		for (int i = 0; i > -90; i--) {
+			func(_this, angle = vec2_t(i, 0));
+		}
+	}
+
+	func(_this, angle);
+}
+
 
 void Hooks::test(void* _this) {
 	auto func = g_Hooks.testHook->GetFastcall<void, void*>();
