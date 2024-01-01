@@ -79,7 +79,7 @@ const char* Scaffold::getModuleName()
 }
 
 static std::vector<C_Entity*> guyzz;
-bool weLookForAGuy(C_Entity* curEnt, bool isRegularEntity)
+bool weLookForAGuy2(C_Entity* curEnt, bool isRegularEntity)
 {
 	if (curEnt == nullptr)
 		return false;
