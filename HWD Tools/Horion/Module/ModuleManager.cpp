@@ -151,7 +151,6 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new VanillaPlus()));
 		moduleList.push_back(std::shared_ptr<IModule>(new ViewModel()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Twerk()));
-		moduleList.push_back(std::shared_ptr<IModule>(new FollowPathModule()));
 		moduleList.push_back(std::shared_ptr<IModule>(new FontChanger()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Coordinates()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Keystroke()));
