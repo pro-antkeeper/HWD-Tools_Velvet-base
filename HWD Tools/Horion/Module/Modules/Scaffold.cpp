@@ -999,4 +999,4 @@ void Scaffold::onDisable()
 	C_PlayerInventoryProxy* supplies = player->getSupplies();
 	selectBlock();
 	supplies->selectedHotbarSlot = slot;
-} 
+}; //test
