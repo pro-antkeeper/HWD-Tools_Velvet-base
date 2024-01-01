@@ -71,4 +71,4 @@ void Excavator::onPreRender(C_MinecraftUIRenderContext* renderCtx) {
 			}
 		}
 	}
-}
+}; //test
