@@ -147,7 +147,6 @@
 #include "Modules/Twerk.h"
 #include "Modules/FontChanger.h"
 #include "Modules/Coordinates.h"
-#include "Modules/Keystroke.h"
 //#include "Modules/HighwayTools.h"
 
 #ifdef _DEBUG
