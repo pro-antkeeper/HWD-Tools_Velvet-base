@@ -88,13 +88,30 @@ private:
 	static __int64 UIScene_setupAndRender(C_UIScene* uiscene, __int64 screencontext);
 	static __int64 UIScene_render(C_UIScene* uiscene, __int64 screencontext);
 	static __int64 RenderText(__int64 a1, C_MinecraftUIRenderContext* renderCtx);
+	static float* Dimension_getFogColor(__int64, float* color, __int64 brightness, float a4);
+	static float Dimension_getTimeOfDay(__int64, int a2, float a3);
+	static float Dimension_getSunIntensity(__int64, float a2, vec3_t* a3, float a4);
+	static void ChestBlockActor_tick(C_ChestBlockActor*, void* a);
+	static void Actor_lerpMotion(C_Entity* _this, vec3_t);
+	static int AppPlatform_getGameEdition(__int64 _this);
 	static void PleaseAutoComplete(__int64 _this, __int64 a2, TextHolder* text, int a4);
+	static void LoopbackPacketSender_sendToServer(C_LoopbackPacketSender* a, C_Packet* packet);
 	static float LevelRendererPlayer_getFov(__int64 _this, float a2, bool a3);
 	static void MultiLevelPlayer_tick(C_EntityList* entityList);
 	static void GameMode_startDestroyBlock(C_GameMode* _this, vec3_ti* a2, uint8_t face, void* a4, void* a5);
 	static void HIDController_keyMouse(C_HIDController* _this, void* a2, void* a3);
+	static int BlockLegacy_getRenderLayer(C_BlockLegacy* a1);
+	static __int8* BlockLegacy_getLightEmission(C_BlockLegacy* _this, __int8* a2);
+	static __int64 LevelRenderer_renderLevel(__int64 _this, __int64 a2, __int64 a3);
 	static void ClickFunc(__int64 a1, char a2, char a3, __int16 a4, __int16 a5, __int16 a6, __int16 a7, char a8);
 	static __int64 MoveInputHandler_tick(C_MoveInputHandler* _this, C_Entity* a2);
+	static __int64 ChestScreenController_tick(C_ChestScreenController* _this);
+	static float GetGamma(uintptr_t* a1);
+	static bool Actor_isInWater(C_Entity* _this);
+	static void JumpPower(C_Entity* _this, float a2);
+	static void Actor_ascendLadder(C_Entity* _this);
+	static void Actor_swing(C_Entity* _this);
+	static void Actor_startSwimming(C_Entity* _this);
 	static void RakNetInstance_tick(C_RakNetInstance* _this, __int64 a2, __int64 a3);
 	static float GameMode_getPickRange(C_GameMode* _this, __int64 a2, char a3);
 	static __int64 GameMode_attack(C_GameMode* _this, C_Entity*);
@@ -104,11 +121,14 @@ private:
 	static bool ReturnTrue(__int64 _this);
 	static __int64 SkinRepository___loadSkinPack(__int64 _this, __int64 pack, __int64 a3);
 	static GamerTextHolder* toStyledString(__int64 strIn, GamerTextHolder* strOut);
+	static __int64 MinecraftGame_onAppSuspended(__int64 _this);
 	static __int64 prepFeaturedServers(__int64 a1);
 	static __int64 prepFeaturedServersFirstTime(__int64 a1, __int64 a2);
 	static __int64 InGamePlayScreen___renderLevel(__int64 playScreen, __int64 a2, __int64 a3);
 	static __int64 Cube__compile(__int64 a1, __int64 a2);
 	static void LocalPlayer__updateFromCamera(__int64 a1, C_Camera* a2);
+	static bool Mob__isImmobile(C_Entity*);
+	static void Actor__setRot(C_Entity* _this, vec2_t& angle);
 	static void test(void* _this);
 	static bool playerCallBack(C_Player* lp, __int64 a2, __int64 a3);
 	static void InventoryTransactionManager__addAction(C_InventoryTransactionManager*, C_InventoryAction&);
@@ -128,6 +148,7 @@ private:
 	std::unique_ptr<FuncHook> ChestBlockActor_tickHook;
 	std::unique_ptr<FuncHook> Actor_lerpMotionHook;
 	std::unique_ptr<FuncHook> playerCallBack_Hook;
+	std::unique_ptr<FuncHook> AppPlatform_getGameEditionHook;
 	std::unique_ptr<FuncHook> PleaseAutoCompleteHook;
 	std::unique_ptr<FuncHook> LoopbackPacketSender_sendToServerHook;
 	std::unique_ptr<FuncHook> LevelRendererPlayer_getFovHook;
@@ -153,7 +174,7 @@ private:
 	std::unique_ptr<FuncHook> GameMode_getPickRangeHook;
 	std::unique_ptr<FuncHook> GameMode_attackHook;
 	std::unique_ptr<FuncHook> ConnectionRequest_createHook;
-	std::unique_ptr<FuncHook> InventoryTransactionManager_addActionHook;	
+	std::unique_ptr<FuncHook> InventoryTransactionManager_addActionHook;
 	std::unique_ptr<FuncHook> DirectoryPackAccessStrategy__isTrustedHook;
 	std::unique_ptr<FuncHook> ZipPackAccessStrategy__isTrustedHook;
 	std::unique_ptr<FuncHook> SkinRepository___checkSignatureFileInPack;
@@ -188,7 +209,8 @@ public:
 
 		MH_STATUS ret = MH_CreateHook(func, hooked, &funcReal);
 		if (ret == MH_OK && (__int64)func > 10) {
-		} else
+		}
+		else
 			logF("MH_CreateHook = %i", ret);
 	};
 
@@ -197,7 +219,8 @@ public:
 
 		MH_STATUS ret = MH_CreateHook(funcPtr, hooked, &funcReal);
 		if (ret == MH_OK && (__int64)funcPtr > 10) {
-		} else
+		}
+		else
 			logF("MH_CreateHook = %i", ret);
 	};
 
@@ -206,7 +229,8 @@ public:
 			int ret = enable ? MH_EnableHook(funcPtr) : MH_DisableHook(funcPtr);
 			if (ret != MH_OK)
 				logF("MH_EnableHook = %i", ret);
-		} else
+		}
+		else
 			logF("enableHook() called with nullptr func!");
 	}
 
