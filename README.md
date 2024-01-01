@@ -32,6 +32,7 @@
 <p>-Add the draw solid box to the drawutils
 <p>-Yoink the semi instant packet mine somehow
 <p>-Make the client compatible with other client (last step)
+<p>-Do that revamp stuff
 
 # Support
 For support, or whatever join the discord if you are not there already. (ping @pro_antkeeper)
