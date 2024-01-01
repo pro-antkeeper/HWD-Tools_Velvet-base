@@ -153,7 +153,6 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new Twerk()));
 		moduleList.push_back(std::shared_ptr<IModule>(new FontChanger()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Coordinates()));
-		moduleList.push_back(std::shared_ptr<IModule>(new Keystroke()));
 
 #ifdef _DEBUG
 		moduleList.push_back(std::shared_ptr<IModule>(new PacketLogger()));
