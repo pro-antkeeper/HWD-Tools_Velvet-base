@@ -139,7 +139,6 @@
 #include "Modules/Freelook.h"
 #include "Modules/NoHurtcam.h"
 #include "Modules/AntiImmobile.h"
-#include "Modules/FollowPathModule.h"
 #include "Modules/Spider.h"
 #include "Modules/Compass.h"
 #include "Modules/Radar.h"
