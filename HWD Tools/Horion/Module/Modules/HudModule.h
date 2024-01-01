@@ -12,6 +12,12 @@ public:
 	bool arraylisttop = true;
 	bool clickToggle = true;
 	bool watermark = false;
+	bool coordinates = false;
+	bool keybinds = true;
+	bool displayArmor = true;
+	bool keystrokes = true;
+	bool fps = true;
+	bool cps = true;
 	bool alwaysShow = false;
 
 	float scale = 1.f;
@@ -19,4 +25,7 @@ public:
 	// Inherited via IModule
 	virtual const char* getModuleName() override;
 	virtual void onPostRender(C_MinecraftUIRenderContext* renderCtx) override;
+	static void drawKeystroke(char key, const vec2_t& pos);
+	static void drawLeftMouseKeystroke(vec2_t pos);
+	static void drawRightMouseKeystroke(vec2_t pos);
 };
