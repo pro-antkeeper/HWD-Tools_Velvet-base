@@ -44,10 +44,9 @@ void APVPDisabler::onPlayerTick(C_Player* player) {
 
 			// specials
 			bool AnvA = moduleMgr->getModule<AnvilAura>()->isEnabled();
-			bool AncA = moduleMgr->getModule<AnchorAura>()->isEnabled();
 			bool trap = moduleMgr->getModule<AutoTrap>()->isEnabled();
 
-			if (not(CPlace || CABPG || CAOW || CAWTA || HF || jtwdSurr || renSurr || burr || scaf || tower || AnvA || AncA || trap))
+			if (not(CPlace || CABPG || CAOW || CAWTA || HF || jtwdSurr || renSurr || burr || scaf || tower || AnvA || trap))
 				return;  // none of the above modules were enabled
 		}
 
