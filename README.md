@@ -23,9 +23,12 @@
 <p>-[to be added] auto hwd logo thing? -skid that one thing
 <p>-[to be added] Toggle sounds 
 <p>-Scaffold: -fix the visual stuff
+<p>-fix the fps display?
 
 ## Other things to do:
 <p>-Finish making the repo thing lol
+<p>-Remove dumb modules
+<p>-Change the categories
 <p>-Change the gui
 <p>-Add the draw solid box to the drawutils
 <p>-Yoink the semi instant packet mine somehow
