@@ -9,7 +9,6 @@
 #include <glm/trigonometric.hpp>  //radians
 
 #include "../SDK/Tag.h"
-#include "../Horion/Menu/TabGui.h"
 #include "../Horion/Module/Modules/Theme.h"
 
 Hooks g_Hooks;
@@ -38,12 +37,12 @@ void Hooks::Init() {
 				g_Hooks.GameMode_attackHook = std::make_unique<FuncHook>(gameModeVtable[14], Hooks::GameMode_attack);
 			}
 		}
-		
+
 		// BlockLegacy::vtable
 		{
 			intptr_t sigOffset = FindSignature("48 8D 05 ?? ?? ?? ?? 48 89 06 EB 03 49 8B F4 4D 89 26");  // BlockLegacy constructor
 			int offset = *reinterpret_cast<int*>(sigOffset + 3);
-            uintptr_t** blockLegacyVtable = reinterpret_cast<uintptr_t**>(sigOffset + offset + 7);
+			uintptr_t** blockLegacyVtable = reinterpret_cast<uintptr_t**>(sigOffset + offset + 7);
 			if (blockLegacyVtable == 0x0 || sigOffset == 0x0)
 				logF("C_BlockLegacy signature not working!!!");
 			else {
@@ -61,7 +60,7 @@ void Hooks::Init() {
 				g_Hooks.Actor_startSwimmingHook = std::make_unique<FuncHook>(localPlayerVtable[201], Hooks::Actor_startSwimming);
 
 				g_Hooks.Actor_ascendLadderHook = std::make_unique<FuncHook>(localPlayerVtable[339], Hooks::Actor_ascendLadder);
-				
+
 				g_Hooks.Actor__setRotHook = std::make_unique<FuncHook>(localPlayerVtable[27], Hooks::Actor__setRot);
 
 				g_Hooks.Actor_swingHook = std::make_unique<FuncHook>(localPlayerVtable[219], Hooks::Actor_swing);
@@ -96,10 +95,10 @@ void Hooks::Init() {
 
 		// PackAccessStrategy vtables for isTrusted
 		{
-			
+
 			uintptr_t sigOffset = FindSignature("48 8D 05 ?? ?? ?? ?? 49 89 06 49 8D 76 50");
 			int offset = *reinterpret_cast<int*>(sigOffset + 3);
-			uintptr_t** directoryPackVtable = reinterpret_cast<uintptr_t**>(sigOffset + offset +  7);
+			uintptr_t** directoryPackVtable = reinterpret_cast<uintptr_t**>(sigOffset + offset + 7);
 
 			{
 				g_Hooks.DirectoryPackAccessStrategy__isTrustedHook = std::make_unique<FuncHook>(directoryPackVtable[6], Hooks::DirectoryPackAccessStrategy__isTrusted);
@@ -107,13 +106,13 @@ void Hooks::Init() {
 
 			uintptr_t sigOffset2 = FindSignature("48 8D 05 ?? ?? ?? ?? 48 89 01 4C 8D B1 ?? ?? ?? ?? 49 8B 46 08"); // Was 48 8D 05 ?? ?? ?? ?? 48 89 03 49 8D 57 in 1.18.2
 			int offset2 = *reinterpret_cast<int*>(sigOffset2 + 3);
-			uintptr_t** directoryPackVtable2 = reinterpret_cast<uintptr_t**>(sigOffset2 + offset2 +  7);
+			uintptr_t** directoryPackVtable2 = reinterpret_cast<uintptr_t**>(sigOffset2 + offset2 + 7);
 
 			{
 				g_Hooks.ZipPackAccessStrategy__isTrustedHook = std::make_unique<FuncHook>(directoryPackVtable2[6], Hooks::ReturnTrue);
 			}
 			g_Hooks.SkinRepository___checkSignatureFileInPack = std::make_unique<FuncHook>(FindSignature("48 89 5C 24 ? 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 44 24 ? 48 8B 79"), Hooks::ReturnTrue);
-			
+
 		}
 	}
 
@@ -137,7 +136,7 @@ void Hooks::Init() {
 		void* fogColorFunc = reinterpret_cast<void*>(FindSignature("41 0F 10 08 48 8B C2 0F"));
 		g_Hooks.Dimension_getFogColorHook = std::make_unique<FuncHook>(fogColorFunc, Hooks::Dimension_getFogColor);
 
-			
+
 
 		/*void* testy = reinterpret_cast<void*>(FindSignature("48 8B 05 61 DF CD 02 48 85 C0 75 07"));
 		g_Hooks.testyHook = std::make_unique<FuncHook>(testy, Hooks::testy);*/
@@ -220,24 +219,24 @@ void Hooks::Init() {
 
 		//void* renderNameTags = reinterpret_cast<void*>(FindSignature("4C 8B DC 49 89 5B ? 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 41 0F 29 73 ? 41 0F 29 7B ? 45 0F 29 43 ? 48 8B 05"));//Broken
 		//g_Hooks.LevelRendererPlayer__renderNameTagsHook = std::make_unique<FuncHook>(renderNameTags, Hooks::LevelRendererPlayer__renderNameTags);
-		
+
 		static constexpr auto counterStart = __COUNTER__ + 1;
-		#define lambda_counter (__COUNTER__ - counterStart)
+#define lambda_counter (__COUNTER__ - counterStart)
 
 		void* levelRendererBobView = reinterpret_cast<void*>(FindSignature("48 8B C4 48 89 58 20 57 48 ?? ?? ?? ?? 00 00 0F ?? ?? ?? 0F ?? ?? ?? ?? 0F ?? ?? ?? ?? 0F ?? ?? ??"));
 
-		static auto bobViewHookF = [](__int64 _this, glm::mat4& matrix, float lerpT){
+		static auto bobViewHookF = [](__int64 _this, glm::mat4& matrix, float lerpT) {
 			static auto origFunc = g_Hooks.lambdaHooks.at(lambda_counter)->GetFastcall<void, __int64, glm::mat4&, float>();
-			
+
 			static auto testMod = moduleMgr->getModule<ViewModel>();
 			auto p = g_Data.getLocalPlayer();
 			float degrees = fmodf(p->getPosOld()->lerp(p->getPos(), lerpT).x, 5) - 2.5f;
 			degrees *= 180 / 2.5f;
 
 			auto pos = g_Data.getClientInstance()->levelRenderer->getOrigin();
-			
+
 			glm::mat4 View = matrix;
-			
+
 			matrix = View;
 			if (testMod->isEnabled()) {
 				if (testMod->doTranslate)
@@ -247,20 +246,20 @@ void Hooks::Init() {
 					matrix = glm::scale<float>(matrix, glm::vec3(testMod->xMod, testMod->yMod, testMod->zMod));
 			}
 			return origFunc(_this, matrix, lerpT);
-		};
-		
+			};
+
 		std::shared_ptr<FuncHook> bobViewHook = std::make_shared<FuncHook>(levelRendererBobView, (decltype(&bobViewHookF.operator()))bobViewHookF);
 
 		g_Hooks.lambdaHooks.push_back(bobViewHook);
 
-		#undef lambda_counter
-		
-		
+#undef lambda_counter
+
+
 
 		logF("Hooks initialized");
 	}
 
-// clang-format on
+	// clang-format on
 }
 
 void Hooks::Restore() {
@@ -326,7 +325,8 @@ void Hooks::ClientInstanceScreenModel_sendChatMessage(void* _this, TextHolder* t
 			cmdMgr->execute(message);
 
 			return;
-		} else if (*message == '.') {
+		}
+		else if (*message == '.') {
 			// maybe the user forgot his prefix, give him some helpful advice
 			static bool helpedUser = false;
 			if (!helpedUser) {
@@ -372,7 +372,7 @@ void Hooks::Actor_baseTick(C_Entity* ent) {
 __int64 Hooks::UIScene_setupAndRender(C_UIScene* uiscene, __int64 screencontext) {
 	static auto oSetup = g_Hooks.UIScene_setupAndRenderHook->GetFastcall<__int64, C_UIScene*, __int64>();
 	g_Hooks.shouldRender = false;
-	
+
 	return oSetup(uiscene, screencontext);
 }
 
@@ -387,7 +387,7 @@ __int64 Hooks::UIScene_render(C_UIScene* uiscene, __int64 screencontext) {
 	if (alloc.getTextLength() < 100) {
 		strcpy_s(g_Hooks.currentScreenName, alloc.getText());
 	}
-	
+
 	if (!g_Hooks.shouldRender) {
 		g_Hooks.shouldRender = (strcmp(alloc.getText(), "start_screen") == 0 || strcmp(alloc.getText(), "hud_screen") == 0);
 	}
@@ -486,10 +486,10 @@ __int64 Hooks::RenderText(__int64 a1, C_MinecraftUIRenderContext* renderCtx) {
 										box->message = "Script import error, \ncheck the console";
 										box->closeTimer = 2;
 									}
-								});
+									});
 								gamer.detach();
 							}
-						});
+							});
 
 						g_Data.sendPacketToInjector(packet);
 					}
@@ -517,10 +517,10 @@ __int64 Hooks::RenderText(__int64 a1, C_MinecraftUIRenderContext* renderCtx) {
 								std::thread gamer([parsed, box]() {
 									SkinUtil::importGeo(Utils::stringToWstring(parsed["path"].get<std::string>()));
 									box->fadeTarget = 0;
-								});
+									});
 								gamer.detach();
 							}
-						});
+							});
 
 						g_Data.sendPacketToInjector(packet);
 					}
@@ -554,21 +554,22 @@ __int64 Hooks::RenderText(__int64 a1, C_MinecraftUIRenderContext* renderCtx) {
 										g_Data.setCustomTextureOverride(true, std::make_shared<std::tuple<std::shared_ptr<unsigned char[]>, size_t>>(texturePtr, contents.size()));
 										box->title = "Success";
 										box->closeTimer = 0.3f;
-									} else {
+									}
+									else {
 										box->title = "Error!";
 										box->message = "Could not read texture file (empty?)";
 										box->closeTimer = 2.f;
 									}
-								});
+									});
 								gamer.detach();
 							}
-						});
+							});
 
 						g_Data.sendPacketToInjector(packet);
 					}
 				}
-			} else {
-				shouldRenderTabGui = hudModule->tabgui && hudModule->isEnabled();
+			}
+			else {
 				shouldRenderArrayList = arrayMod->isEnabled();
 				shouldRenderWatermark = hudModule->watermark && hudModule->isEnabled();
 
@@ -579,8 +580,6 @@ __int64 Hooks::RenderText(__int64 a1, C_MinecraftUIRenderContext* renderCtx) {
 					shouldRenderTabGui = false;
 					shouldRenderWatermark = false;
 				}
-
-				if (shouldRenderTabGui) TabGui::render();
 
 				{
 					// Display ArrayList on the Right?
@@ -794,7 +793,7 @@ __int64 Hooks::RenderText(__int64 a1, C_MinecraftUIRenderContext* renderCtx) {
 							currColor[0] += 1.f / a * c;
 							Utils::ColorConvertHSVtoRGB(currColor[0], currColor[1], currColor[2], currColor[0], currColor[1], currColor[2]);
 
-								DrawUtils::fillRectangle(rectPos, MC_Color(12, 12, 12), arrayMod->opacity);
+							DrawUtils::fillRectangle(rectPos, MC_Color(12, 12, 12), arrayMod->opacity);
 
 							// DrawUtils::fillRectangle(leftRect, MC_Color(currColor), 1.f);
 							if (!GameData::canUseMoveKeys() && rectPos.contains(&mousePos) && hudModule->clickToggle) {
@@ -804,12 +803,14 @@ __int64 Hooks::RenderText(__int64 a1, C_MinecraftUIRenderContext* renderCtx) {
 									DrawUtils::fillRectangle(selectedRect, MC_Color(0.8f, 0.8f, 0.8f), 0.8f);
 									if (executeClick)
 										it->backingModule->toggle();
-								} else
+								}
+								else
 									DrawUtils::fillRectangle(selectedRect, MC_Color(0.8f, 0.8f, 0.8f, 0.8f), 0.3f);
 							}
 							if (arrayMod->rgba) {
 								DrawUtils::drawText(textPos, &textStr, MC_Color(currColor), textSize);
-							} else {
+							}
+							else {
 								DrawUtils::drawText(textPos, &textStr, MC_Color(255, 255, 255), textSize);
 							}
 							if (arrayMod->Cool) {
@@ -831,7 +832,8 @@ __int64 Hooks::RenderText(__int64 a1, C_MinecraftUIRenderContext* renderCtx) {
 							}
 							if (arrayMod->bottom) {
 								yOffset -= textHeight + (textPadding * 2);
-							} else {
+							}
+							else {
 								yOffset += textHeight + (textPadding * 2);
 							}
 						}
@@ -1026,7 +1028,8 @@ void Hooks::PleaseAutoComplete(__int64 a1, __int64 a2, TextHolder* text, int a4)
 					if (car == ' ' && i == cmd.size()) {
 						plump.shouldReplace = false;
 						break;
-					} else if (i >= cmd.size())
+					}
+					else if (i >= cmd.size())
 						goto outerContinue;
 
 					if (car != cmd.at(i))  // and compare
@@ -1062,7 +1065,8 @@ void Hooks::PleaseAutoComplete(__int64 a1, __int64 a2, TextHolder* text, int a4)
 						}
 					}
 				}
-			} else
+			}
+			else
 				maxReplaceLength = firstResult.cmdAlias.size();
 
 			g_Data.getGuiData()->displayClientMessageF("==========");
@@ -1113,13 +1117,15 @@ void Hooks::LoopbackPacketSender_sendToServer(C_LoopbackPacketSender* a, C_Packe
 					C_MovePlayerPacket* meme = reinterpret_cast<C_MovePlayerPacket*>(packet);
 					meme->onGround = true;                                                            //Don't take Fall Damages when turned off
 					blinkMod->getMovePlayerPacketHolder()->push_back(new C_MovePlayerPacket(*meme));  // Saving the packets
-				} else {
+				}
+				else {
 					blinkMod->getPlayerAuthInputPacketHolder()->push_back(new PlayerAuthInputPacket(*reinterpret_cast<PlayerAuthInputPacket*>(packet)));
 				}
 			}
 			return;  // Dont call LoopbackPacketSender_sendToServer
 		}
-	} else if (!blinkMod->isEnabled()) {
+	}
+	else if (!blinkMod->isEnabled()) {
 		if (blinkMod->getMovePlayerPacketHolder()->size() > 0) {
 			for (auto it : *blinkMod->getMovePlayerPacketHolder()) {
 				oFunc(a, (it));
@@ -1159,7 +1165,8 @@ void Hooks::LoopbackPacketSender_sendToServer(C_LoopbackPacketSender* a, C_Packe
 	if ((pm->isEnabled() && pm->okPacketSent && !(packet->isInstanceOf<C_MovePlayerPacket>() && packet->isInstanceOf<PlayerAuthInputPacket>())) || (instabreakMod->isEnabled() && !(packet->isInstanceOf<C_MovePlayerPacket>() && packet->isInstanceOf<PlayerAuthInputPacket>()) && (pp->action == 2 && pp->entityRuntimeId == g_Data.getLocalPlayer()->entityRuntimeId))) {
 		for (int PacketMult = 0; PacketMult < pm->multiplier; PacketMult++)
 			oFunc(a, packet);
-	} else {
+	}
+	else {
 		oFunc(a, packet);
 	}
 }
@@ -1221,7 +1228,7 @@ void Hooks::GameMode_startDestroyBlock(C_GameMode* _this, vec3_ti* a2, uint8_t f
 		return;
 	}
 	if (instaBreakModule->isEnabled() && instaBreakModule->Modes.GetSelectedEntry().GetValue() == 1) { // packet ib
-		if (g_Data.getLocalPlayer()->region->getBlock(*a2)->toLegacy()->blockId != 7) {  
+		if (g_Data.getLocalPlayer()->region->getBlock(*a2)->toLegacy()->blockId != 7) {
 			_this->destroyBlock(a2, 0xFFFFFFFFFFFFFF);
 
 			return;
@@ -1308,7 +1315,7 @@ __int64 Hooks::LevelRenderer_renderLevel(__int64 _this, __int64 a2, __int64 a3) 
 		unsigned long long* i;   // rbx
 
 		v5 = *(unsigned long long**)(_this + 32);
-		for (i = (unsigned long long*)*v5; i != v5; i = (unsigned long long*)*i)
+		for (i = (unsigned long long*) * v5; i != v5; i = (unsigned long long*) * i)
 			reloadChunk(i[3]);
 	}
 
@@ -1393,11 +1400,13 @@ float Hooks::GetGamma(uintptr_t* a1) {
 			xrayMod->smoothLightningSetting = smoothlightning;
 			obtainedSettings++;
 			hadIt = true;
-		} else if (!strcmp(settingname->getText(), "gfx_ingame_player_names")) {
+		}
+		else if (!strcmp(settingname->getText(), "gfx_ingame_player_names")) {
 			bool* ingamePlayerName = (bool*)((uintptr_t)list[i] + 16);
 			nametagmod->ingameNametagSetting = ingamePlayerName;
 			obtainedSettings++;
-		} else if (!strcmp(settingname->getText(), "gfx_field_of_view")) {
+		}
+		else if (!strcmp(settingname->getText(), "gfx_field_of_view")) {
 			float* FieldOfView = (float*)((uintptr_t)list[i] + 24);
 			if (zoomMod->isEnabled())
 				zoomMod->OGFov = *FieldOfView;
@@ -1462,7 +1471,7 @@ void Hooks::Actor_ascendLadder(C_Entity* _this) {
 void Hooks::Actor_swing(C_Entity* _this) {
 	static auto oFunc = g_Hooks.Actor_swingHook->GetFastcall<void, C_Entity*>();
 	static auto noSwingMod = moduleMgr->getModule<NoSwing>();
-	if(!noSwingMod->isEnabled()) return oFunc(_this);
+	if (!noSwingMod->isEnabled()) return oFunc(_this);
 }
 
 void Hooks::Actor_startSwimming(C_Entity* _this) {
@@ -1524,21 +1533,22 @@ __int64 Hooks::ConnectionRequest_create(__int64 _this, __int64 privateKeyManager
 		if (std::get<0>(geoOverride)) {  // Is overriding geometry
 			auto overrideGeo = std::get<1>(geoOverride);
 			newGeometryData = new TextHolder(*overrideGeo.get());
-		} else {  // Default Skin
-				  /*char* str;  // Obj text
-			{
-				auto hResourceObj = FindResourceA(g_Data.getDllModule(), MAKEINTRESOURCEA(IDR_OBJ), "TEXT");
-				auto hMemoryObj = LoadResource(g_Data.getDllModule(), hResourceObj);
+		}
+		else {  // Default Skin
+			/*char* str;  // Obj text
+	  {
+		  auto hResourceObj = FindResourceA(g_Data.getDllModule(), MAKEINTRESOURCEA(IDR_OBJ), "TEXT");
+		  auto hMemoryObj = LoadResource(g_Data.getDllModule(), hResourceObj);
 
-				auto sizeObj = SizeofResource(g_Data.getDllModule(), hResourceObj);
-				auto ptrObj = LockResource(hMemoryObj);
+		  auto sizeObj = SizeofResource(g_Data.getDllModule(), hResourceObj);
+		  auto ptrObj = LockResource(hMemoryObj);
 
-				str = new char[sizeObj + 1];
-				memset(str, 0, sizeObj + 1);
-				memcpy(str, ptrObj, sizeObj);
-			}
+		  str = new char[sizeObj + 1];
+		  memset(str, 0, sizeObj + 1);
+		  memcpy(str, ptrObj, sizeObj);
+	  }
 
-			newGeometryData = new TextHolder(SkinUtil::modGeometry(reinterpret_cast<char*>(ptrGeometry), SkinUtil::objToMesh(str)));*/
+	  newGeometryData = new TextHolder(SkinUtil::modGeometry(reinterpret_cast<char*>(ptrGeometry), SkinUtil::objToMesh(str)));*/
 		}
 
 		SkinData* newSkinData = new SkinData();
@@ -1588,7 +1598,8 @@ __int64 Hooks::ConnectionRequest_create(__int64 _this, __int64 privateKeyManager
 		delete newSkinData;
 		delete newSkinResourcePatch;
 		return res;
-	} else {
+	}
+	else {
 		TextHolder* fakeName = g_Data.getFakeName();
 		__int64 res = oFunc(_this, privateKeyManager, a3, selfSignedId, serverAddress, clientRandomId, skinId, skinData, capeData, coolSkinStuff, deviceId, inputMode, uiProfile, guiScale, languageCode, sendEduModeParams, tenantId, unused, platformUserId, fakeName != nullptr ? fakeName : thirdPartyName, fakeName != nullptr ? true : thirdPartyNameOnly, platformOnlineId, platformOfflineId, capeId);
 		return res;
