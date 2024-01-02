@@ -28,6 +28,5 @@
 #include "Command/CommandMgr.h"
 #include "Config/ConfigManager.h"
 #include "Menu/ClickGui.h"
-#include "Menu/TabGui.h"
 #include "Module/ModuleManager.h"
 #include "ImmediateGui.h"
