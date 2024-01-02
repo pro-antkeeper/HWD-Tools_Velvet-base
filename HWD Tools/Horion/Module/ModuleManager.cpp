@@ -47,18 +47,12 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new Excavator()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoLog()));
 
-		moduleList.push_back(std::shared_ptr<IModule>(new AutoCity()));
-		moduleList.push_back(std::shared_ptr<IModule>(new AntiCrystal()));
-		moduleList.push_back(std::shared_ptr<IModule>(new APVPDisabler()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AntiDesync()));
 		moduleList.push_back(std::shared_ptr<IModule>(new RobotHolefiller()));
 		moduleList.push_back(std::shared_ptr<IModule>(new CityESP()));
-		moduleList.push_back(std::shared_ptr<IModule>(new SilentLook()));
 		moduleList.push_back(std::shared_ptr<IModule>(new RenSurround()));
 		moduleList.push_back(std::shared_ptr<IModule>(new TargetHud()));
-		moduleList.push_back(std::shared_ptr<IModule>(new Bps()));  // btw this module is InfoShow ~ i was just too lazy to rename
 		moduleList.push_back(std::shared_ptr<IModule>(new StrafeSpeed()));
-		moduleList.push_back(std::shared_ptr<IModule>(new Burrow()));
-		moduleList.push_back(std::shared_ptr<IModule>(new LavaPlacer()));
 		moduleList.push_back(std::shared_ptr<IModule>(new BlockEsp()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AnvilAura()));
 		moduleList.push_back(std::shared_ptr<IModule>(new BowSpam()));
