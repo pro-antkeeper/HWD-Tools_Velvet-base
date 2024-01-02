@@ -24,6 +24,7 @@
 <p>-[to be added] Toggle sounds 
 <p>-Scaffold: -fix the visual stuff
 <p>-fix the fps display?
+<p>-get a patched anticrystal?
 
 ## Other things to do:
 <p>-Finish making the repo thing lol
