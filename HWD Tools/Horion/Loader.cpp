@@ -398,7 +398,7 @@ BOOL __stdcall DllMain(HMODULE hModule,
 		if (g_Data.getLocalPlayer() != nullptr) {
 			C_GuiData* guiData = g_Data.getClientInstance()->getGuiData();
 			if (guiData != nullptr && !GameData::shouldHide())
-				guiData->displayClientMessageF("%sEjected!", RED);
+				guiData->displayClientMessageF("%sHIGHWAY CLIENT EJECTED", RED);
 		}
 		break;
 	}
