@@ -2,18 +2,14 @@
 #include "../../DrawUtils.h"
 #include "../../Scripting/ScriptManager.h"
 
-HudModule::HudModule() : IModule(0, Category::HUD, "Displays ArrayList/TabGUI") {
-	registerBoolSetting("TabGui", &tabgui, tabgui);
+HudModule::HudModule() : IModule(0, Category::HUD, "Displays HUD elements") {
 	//registerBoolSetting("ArrayList", &arraylist, arraylist);
 	registerBoolSetting("ClickToggle", &clickToggle, clickToggle);
 	//registerBoolSetting("Watermark", &watermark, watermark);
 	//registerBoolSetting("Coordinates", &coordinates, coordinates);
 	registerBoolSetting("Show Keybinds", &keybinds, keybinds);
 	registerBoolSetting("Show ArmorHUD", &displayArmor, displayArmor);
-	registerBoolSetting("Keystrokes", &keystrokes, keystrokes);
 	registerBoolSetting("Show FPS", &fps, fps);
-	registerBoolSetting("Show CPS", &cps, cps);
-	registerBoolSetting("Always show", &alwaysShow, alwaysShow);
 	//registerFloatSetting("Scale", &scale, scale, 0.5f, 1.5f);
 }
 
@@ -105,29 +101,16 @@ void HudModule::onPostRender(C_MinecraftUIRenderContext* renderCtx) {
 	float f = 10.f * scale;
 	std::string tempStr("Movement");
 	float len = DrawUtils::getTextWidth(&tempStr, scale) + 7.f;
-	float startY = tabgui ? 6 * f : 0.f;
-	if (tabgui && scriptMgr.getNumEnabledScripts() > 0)
-		startY += f;
-	{  // FPS
+
+	if (scriptMgr.getNumEnabledScripts() > 0)
+	{  // Fps
 		if (!(g_Data.getLocalPlayer() == nullptr || !fps)) {
 			std::string fpsText = "FPS: " + std::to_string(g_Data.getFPS());
-			vec4_t rectPos = vec4_t(2.5f, startY + 5.f * scale, len, startY + 15.f * scale);
+			vec4_t rectPos = vec4_t(2.5f, 5.f * scale, len, 15.f * scale);
 			vec2_t textPos = vec2_t(rectPos.x + 1.5f, rectPos.y + 1.f);
 			DrawUtils::fillRectangle(rectPos, MC_Color(12, 12, 12), 1.f);
 			DrawUtils::drawText(textPos, &fpsText, MC_Color(200, 200, 200), scale);
 
-			startY += f;
-		}
-	}
-	{  // CPS
-		if (!(g_Data.getLocalPlayer() == nullptr || !cps)) {
-			std::string cpsText = "CPS: " + std::to_string(g_Data.getLeftCPS()) + " - " + std::to_string(g_Data.getRightCPS());
-			vec4_t rectPos = vec4_t(2.5f, startY + 5.f * scale, len, startY + 15.f * scale);
-			vec2_t textPos = vec2_t(rectPos.x + 1.5f, rectPos.y + 1.f);
-			DrawUtils::fillRectangle(rectPos, MC_Color(12, 12, 12), 1.f);
-			DrawUtils::drawText(textPos, &cpsText, MC_Color(200, 200, 200), scale);
-
-			startY += f;
 		}
 	}
 	{  // Coordinates
@@ -137,7 +120,7 @@ void HudModule::onPostRender(C_MinecraftUIRenderContext* renderCtx) {
 			std::string coordsX = "X: " + std::to_string((int)floorf(pos->x));
 			std::string coordsY = "Y: " + std::to_string((int)floorf(pos->y));
 			std::string coordsZ = "Z: " + std::to_string((int)floorf(pos->z));
-			vec4_t rectPos = vec4_t(2.5f, startY + 5.f * scale, len, startY + 35.f * scale);
+			vec4_t rectPos = vec4_t(2.5f, 5.f * scale, len, 35.f * scale);
 			vec2_t textPos = vec2_t(rectPos.x + 1.5f, rectPos.y + 1.f);
 			DrawUtils::fillRectangle(rectPos, MC_Color(12, 12, 12), 1.f);
 			DrawUtils::drawText(textPos, &coordsX, MC_Color(200, 200, 200), scale);
@@ -168,18 +151,6 @@ void HudModule::onPostRender(C_MinecraftUIRenderContext* renderCtx) {
 			//x += scale * spacing;
 			if (item->isValid())
 				DrawUtils::drawItem(item, vec2_t(x, y), opacity, scale, item->isEnchanted());
-		}
-	}
-	{  // Keystrokes
-		if (!(g_Data.getLocalPlayer() == nullptr || !keystrokes || !GameData::canUseMoveKeys())) {
-			C_GameSettingsInput* input = g_Data.getClientInstance()->getGameSettingsInput();
-			HudModule::drawKeystroke(*input->forwardKey, vec2_t(32.f, windowSize.y - 84));
-			HudModule::drawKeystroke(*input->leftKey, vec2_t(10.f, windowSize.y - 62));
-			HudModule::drawKeystroke(*input->backKey, vec2_t(32.f, windowSize.y - 62));
-			HudModule::drawKeystroke(*input->rightKey, vec2_t(54.f, windowSize.y - 62));
-			HudModule::drawKeystroke(*input->spaceBarKey, vec2_t(10.f, windowSize.y - 40));
-			HudModule::drawLeftMouseKeystroke(vec2_t(10.f, windowSize.y - 25));
-			HudModule::drawRightMouseKeystroke(vec2_t(43.f, windowSize.y - 25));
 		}
 	}
 }
