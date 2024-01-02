@@ -48,7 +48,6 @@ DWORD WINAPI keyThread(LPVOID lpParam) {
 				moduleMgr->onKeyUpdate((int)i, newKeyPressed);
 			}
 			if (*newKey != *oldKey) {  // Skip Chat or inventory checks
-				TabGui::onKeyUpdate((int)i, *newKey);
 				ClickGui::onKeyUpdate((int)i, *newKey);
 			}
 		}
@@ -349,7 +348,6 @@ DWORD WINAPI start(LPVOID lpParam) {
 	logF("Initialized config manager (3/3)");
 
 	Hooks::Enable();
-	TabGui::init();
 	ClickGui::init();
 
 	logF("Hooks enabled");
