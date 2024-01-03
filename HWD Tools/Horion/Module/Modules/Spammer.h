@@ -7,7 +7,7 @@ private:
 	bool bypass = true;
 	int delay = 2;
 	int length = 8;
-	std::string message = ":pick JOIN THE HIGHWAY DEPARTMENT :pick: https://discord.com/invite/kxEZZBfVBD :pick:";
+	std::string message = ":pick: JOIN THE HIGHWAY DEPARTMENT :pick: https://discord.com/invite/kxEZZBfVBD :pick:";
 
 public:
 	Spammer();
