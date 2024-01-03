@@ -2,23 +2,27 @@
 #include "../ModuleManager.h"
 #include "Module.h"
 
-struct CrystalPlacements {
+struct CrystalPlacements
+{
 	vec3_t toPlace;
 	float enemyDmg = 0.f;
 	float selfDmg = 0.f;
 };
 
-struct CrystalInfo {
+struct CrystalInfo
+{
 	CrystalPlacements CPlacements;
 	C_Entity* ent;
 };
 
-struct lineResults {
+struct lineResults
+{
 	float blockCount = 0;
 	vec3_t lastSolidBlock;
 };
 
-inline bool checkCornerHitboxCollision(vec3_t* block, C_Entity* ent) {  // THANK SB HOLY SHIT I WAS TRYING TO MAKE THIS BY MYSELF FOR HOURS!!11!1
+inline bool checkCornerHitboxCollision(vec3_t* block, C_Entity* ent)
+{ // THANK SB HOLY SHIT I WAS TRYING TO MAKE THIS BY MYSELF FOR HOURS!!11!1
 	std::vector<vec3_t*> corners;
 	corners.clear();
 
@@ -27,15 +31,21 @@ inline bool checkCornerHitboxCollision(vec3_t* block, C_Entity* ent) {  // THANK
 	corners.push_back(new vec3_t(ent->aabb.upper.x, ent->aabb.lower.y, ent->aabb.upper.z));
 	corners.push_back(new vec3_t(ent->aabb.upper.x, ent->aabb.lower.y, ent->aabb.lower.z));
 
-	if (ent->getEntityTypeId() != 319) {
-		if (!corners.empty()) {
-			for (auto corner : corners) {
-				if ((floor(corner->x) == floor(block->x)) && (floor(corner->y) == floor(block->y)) && (floor(corner->z) == floor(block->z))) {
+	if (ent->getEntityTypeId() != 319)
+	{
+		if (!corners.empty())
+		{
+			for (auto corner : corners)
+			{
+				if ((floor(corner->x) == floor(block->x)) && (floor(corner->y) == floor(block->y)) && (floor(corner->z) == floor(block->z)))
+				{
 					return true;
 				}
 			}
 		}
-	} else {
+	}
+	else
+	{
 		vec3_t pp = ent->getHumanPos();
 		vec3_t entCorners[8] = {
 			pp.add(.3f, 0, .3f),
@@ -48,8 +58,10 @@ inline bool checkCornerHitboxCollision(vec3_t* block, C_Entity* ent) {  // THANK
 			pp.add(0, 0, -.33541f),
 		};
 
-		for (vec3_t i : entCorners) {
-			if (i.floor() == *block) {
+		for (vec3_t i : entCorners)
+		{
+			if (i.floor() == *block)
+			{
 				return true;
 			}
 		}
@@ -58,13 +70,15 @@ inline bool checkCornerHitboxCollision(vec3_t* block, C_Entity* ent) {  // THANK
 	return false;
 }
 
-inline lineResults countBlksAlongLine(vec3_t start, vec3_t end) {
+inline lineResults countBlksAlongLine(vec3_t start, vec3_t end)
+{
 	vec3_t endf = end.floor();
 	vec3_t startf = start.floor();
 
 	lineResults rtn;
 
-	if (endf == startf) {
+	if (endf == startf)
+	{
 		rtn.blockCount = 0.f;
 		rtn.lastSolidBlock = startf;
 		return rtn;
@@ -83,13 +97,15 @@ inline lineResults countBlksAlongLine(vec3_t start, vec3_t end) {
 	vec3_t imHere = startf;
 	vec3_ti inCoord = startf;
 
-	while (steps-- >= 0) {
-		//if ((vec3_ti)imHere.floor() != inCoord) {
+	while (steps-- >= 0)
+	{
+		// if ((vec3_ti)imHere.floor() != inCoord) {
 		inCoord = imHere.floor();
 
-		if (!g_Data.getLocalPlayer()->region->getBlock(inCoord)->blockLegacy->material->isReplaceable) {  // if inCoord is a block
+		if (!g_Data.getLocalPlayer()->region->getBlock(inCoord)->blockLegacy->material->isReplaceable)
+		{ // if inCoord is a block
 			rtn.blockCount = rtn.blockCount + segment;
-			rtn.lastSolidBlock = inCoord.toVec3t();
+			//rtn.lastSolidBlock = inCoord.toVector3(); //GS to HWD ... needa fix this maybe
 		}
 		//}
 
@@ -98,7 +114,8 @@ inline lineResults countBlksAlongLine(vec3_t start, vec3_t end) {
 	return rtn;
 }
 
-class CrystalPlace : public IModule {
+class CrystalPlace : public IModule
+{
 private:
 	int origSlot;
 	int ctr = 0;
@@ -107,61 +124,86 @@ private:
 
 	bool currentlySwitchingHotbar = false;
 	float dmg_nukkit = false;
+	bool fill = true;		// toggle the fill render
+	float Opacity = 0.25f;	// Opacity of the fill renders
+	float OutOpacity = 1.f; // Opacity of the outline renders
+	int rad = 1;
+	bool doMultiple = false;
+	bool drawSelfDmg = false; // Shows how much damage will be dealt to you
+	bool drawEnemDmg = true;  // Shows how much dmamage will be dealt to the enemy
+
+	float sred = 255.f;
+	float sgreen = 255.f;
+	float sblue = 255.f;
+
+	float ered = 180.f;
+	float egreen = 180.f;
+	float eblue = 180.f;
+
+	bool syncEnemDmg = false;
+	bool syncSelfDmg = false;
+
+	int slotMC = 0;
 
 public:
 	std::vector<CrystalInfo> CJTWDPlaceArr;
+	std::string name = "AutoCrystalRewrite";
 	vec2_t rotAngle;
 	bool placeArrEmpty = false;
 	bool rotUpNow = false;
+	bool cbWasEnabled = false;
 
-	int delay = 0;  // Time to wait (in ticks) until to place a new crystal
-	//int placetimes = 1;     // Number of times the client should keep retrying to place a crystal
-	int maxProximity = 4;   // What is the maximum distance can a crystal be placed from a person before switching axis
-	float range = 8;         // Range for the enemies to be added to target list
-	float placeRange = 6.f;  // Range to place endCrystals
-	SettingEnum priority;   // Decides how targets are sorted (distance-> lowest to highest
-							//								   health-> lowest to highest)
-	float thruWallsR = 6;     // How many blocks you are allowed to place through walls
-	float postWallsR = 10;   // Maximum distance to place *after* going through a wall
+	bool rangesec;
+	bool placesec;
+	bool safesec;
+
+	int delay = 2;			// Time to wait (in ticks) until to place a new crystal
+	int placetimes = 1;		// Number of times the client should keep retrying to place a crystal
+	int maxProximity = 4;	// What is the maximum distance can a crystal be placed from a person before switching axis
+	float range = 8;		// Range for the enemies to be added to target list
+	float placeRange = 6.f; // Range to place endCrystals
+	SettingEnum priority;	// Decides how targets are sorted (distance-> lowest to highest
+	//								   health-> lowest to highest)
+	float thruWallsR = 6;	// How many blocks you are allowed to place through walls
+	float postWallsR = 10;	// Maximum distance to place *after* going through a wall
 
 	/* SOON
 	int lookAhead = 5;		// how many ticks in the future to predict future enemy location (set to 0 to disable predict)
 	*/
 
-	SettingEnum calcDmgType;  // What method is used to calculate damage (java, bedrock)
+	SettingEnum calcDmgType; // What method is used to calculate damage (java, bedrock)
 
-	bool safetyFirst = false;  // Whether to prioritize (reduce) self-damage over (maximizing) enemy damage
-	float minHealth = 5.f;    // What is the minimum health you should have to stop placing crystals
-	float maxSelfDmg = 5.f;   // Maximum damage allowable to player
+	bool safetyFirst = false; // Whether to prioritize (reduce) self-damage over (maximizing) enemy damage
+	float minHealth = 5.f;	  // What is the minimum health you should have to stop placing crystals
+	float maxSelfDmg = 5.f;	  // Maximum damage allowable to player
 	float minEnemDmg = 10.f;  // How much damage the crystals do to enemies, ON MINIMUM
+	bool silentGK = false;
+	bool ignoreEat = false;	  // Ignores eating and places anyways
+	bool ignoreTools = false; // Ignores tools and places anyways
+	int slotGK = 0;
 
-	SettingEnum facePlaceType;  // Controls faceplacing (none->obvious
-								//                       smart->faceplaces only when the enemy is at a certain health)
-	float fpThresh = 20.f;      // Only when facePlaceType is set to smart [if this is set to 20, client always faceplaces]
-	float dmgAtThresh = 3.f;    // When fpThreshold is reached, how much damage do the crystals need to deliver
+	SettingEnum facePlaceType; // Controls faceplacing (none->obvious
+	//                       smart->faceplaces only when the enemy is at a certain health)
+	float fpThresh = 20.f;	   // Only when facePlaceType is set to smart [if this is set to 20, client always faceplaces]
+	float dmgAtThresh = 3.f;   // When fpThreshold is reached, how much damage do the crystals need to deliver
 
-	bool renderPlacing = true;  // Whether to render place position
-	bool noCheckUpper = false;  // Put true if crystals can fit under blocks(endzone 1.13+ Java)
-	bool attackMulti = false;   // Whether player should try to attack more than 1 enemy
-	SettingEnum switchType;     // Type of Switch (regular->switch to crystal at start
-								//                 switchBack->something like citySwitch in surround
-								//                 APVPSpoof->Uses mob equipment as a spoofer[only works on APVP)
+	bool renderPlacing = true; // Whether to render place position
+	bool noCheckUpper = false; // Put true if crystals can fit under blocks(endzone 1.13+ Java)
+	bool ReturnOnEat = true;   // stops autocrystalling when eating gapps and such
+	bool attackMulti = false;  // Whether player should try to attack more than 1 enemy
+	bool sayGaming = true;     // Says the "We gaming" and "We aint gaming no more" text
+	SettingEnum switchType;	   // Type of Switch (regular->switch to crystal at start
+	//                 switchBack->something like citySwitch in surround
+	//                 APVPSpoof->Uses mob equipment as a spoofer[only works on APVP)
 
-	SettingEnum rotate;  // Rotations (none->obvious
-						 //			  normal->clientside rotate
-						 //			  silent->sends packet to go look at the crystal;
-						 //           pitchUp->so CA works on APVP
+	SettingEnum rotate; // Rotations (none->obvious
+	//			  normal->clientside rotate
+	//			  silent->sends packet to go look at the crystal;
+	//           pitchUp->so CA works on APVP
 
-	/* TODO
-	*  when APVPSpoof on, stop crystalling on mine
-	*  fix crashing when there is no crystal and apvpspoof is on 
-	*  steal silent rots from ng
-	*/
-
-	/* TODO (in CrystalBreak):
-	* anti-weakness
-	* anti blocking crystals
-	*/
+	SettingEnum renderType; // Controls how the client should render stuff (Pretty->renders both outline and fill render
+	//			  Fill->renders the fill render
+	//			  Box->only render the outline
 
 	CrystalPlace();
 	~CrystalPlace();
@@ -171,7 +213,7 @@ public:
 	// T H E  H O L Y  T R I N I T Y
 	float computeExplosionDamage(vec3_t crystalPos, C_Entity* target, C_BlockSource* reg);
 	float getBlastDamageEnchantReduction(C_ItemStack* armor);
-	//float calculateBlockDensity(C_Entity* targetEntity, vec3_t explosionPosition);
+	// float calculateBlockDensity(C_Entity* targetEntity, vec3_t explosionPosition);
 
 	std::vector<CrystalPlacements> generateValidPlacements(C_Entity* target, int yOffset);
 
@@ -182,22 +224,24 @@ public:
 	bool getCrystalSpoof();
 
 	// Inherited via IModule
+	virtual const char* getRawModuleName();
 	virtual const char* getModuleName() override;
 	virtual void onTick(C_GameMode* gm) override;
 	virtual void onWorldTick(C_GameMode* gm) override;
-	//virtual void onPlayerTick(C_GameMode* gm) override;
+	// virtual void onPlayerTick(C_GameMode* gm) override;
 	virtual void onEnable() override;
 	virtual void onDisable() override;
 	virtual void onPreRender(C_MinecraftUIRenderContext* renderCtx) override;
 	virtual void onSendPacket(C_Packet* packet) override;
 };
 
-class CrystalBreak : public IModule {
+class CrystalBreak : public IModule
+{
 private:
 	int oldSlot;
 
-	int Mdel = 0;  // main delay
-	int Rdel = 0;  // retry delay
+	int Mdel = 0; // main delay
+	int Rdel = 0; // retry delay
 
 public:
 	vec2_t rotAngleB;
@@ -205,27 +249,30 @@ public:
 
 	int aSlot;
 
-	int breakdelay = 0;  // Time to wait (in ticks) until to break a new crystal
+	int breakdelay = 0; // Time to wait (in ticks) until to break a new crystal
+
+	float Opacity = 0.25f;	// Opacity of the fill renders
+	float OutOpacity = 1.f; // Opacity of the outline renders
 
 	bool retardBreak = false; // weird super fast break shit
 
-	float breakRange = 6.f;  // Range to break endCrystals
+	float breakRange = 6.f; // Range to break endCrystals
 
-	bool breakAll = true;  // Whether to break ALL the crystals or just the nearest one
+	bool breakAll = true; // Whether to break ALL the crystals or just the nearest one
 
-	float breakWalls = 10;    // How many blocks you are allowed to place through walls
-	float postBWalls = 10;  // Maximum distance to place *after* going through a wall
+	float breakWalls = 10; // How many blocks you are allowed to place through walls
+	float postBWalls = 10; // Maximum distance to place *after* going through a wall
 
-	float breakHealth = 5.f;  // What is the minimum health you should have to stop breaking crystals
-	float BmaxSelfDmg = 5.f;  // Maximum damage allowable to player
+	float breakHealth = 0.f;  // What is the minimum health you should have to stop breaking crystals
+	float BmaxSelfDmg = 20.f; // Maximum damage allowable to player
 
-	bool antiWeakness = false;  // detects if you have been hit by weakness and switches to a weapon accordingly
+	bool antiWeakness = false; // detects if you have been hit by weakness and switches to a weapon accordingly
 
-	bool renderBreaking = true;  // Whether to render crystal break attempts
+	bool renderBreaking = false; // Whether to render crystal break attempts
 
-	SettingEnum rotateBreak;  // Rotations (none->obvious
-							  //			  normal->clientside rotate
-							  //			  silent->sends packet to go look at the crystal;
+	SettingEnum rotateBreak; // Rotations (none->obvious
+	//			  normal->clientside rotate
+	//			  silent->sends packet to go look at the crystal;
 
 	bool configHelper = true;
 
@@ -242,5 +289,4 @@ public:
 	virtual void onPreRender(C_MinecraftUIRenderContext* renderCtx) override;
 	virtual void onLevelRender();
 	virtual void onSendPacket(C_Packet* packet) override;
-
 };
