@@ -11,7 +11,7 @@
 #include <random>
 #include <vector>
 
-//#include "xorstr.h"
+#include "xorstr.h"
 
 static const char* const KeyNames[] = {
 	"Unknown",
@@ -206,7 +206,7 @@ static const char* const KeyNames[] = {
 	"MINUS",
 	"DOT",
 	"OEM_2",
-	"OEM_3"};
+	"OEM_3" };
 
 #define INRANGE(x, a, b) (x >= a && x <= b)
 #define GET_BYTE(x) (GET_BITS(x[0]) << 4 | GET_BITS(x[1]))
@@ -221,31 +221,13 @@ static inline void ImSwap(T& a, T& b) {
 	b = tmp;
 }
 
-#ifdef JM_XORSTR_HPP
-#define FindSignature(szSignature) Utils::FindSignatureModule("Minecraft.Windows.exe", xorstr_(szSignature))
-#else
-#define FindSignature(szSignature) Utils::FindSignatureModule("Minecraft.Windows.exe", szSignature)
-#endif
+#define FindSignature(szSignature) Utils::FindSignatureModule(XorString("Minecraft.Windows.exe"), XorString(szSignature))
 
-struct vec3_ti;
 
 class Utils {
 public:
-
-	static __forceinline unsigned __int64 rotBy(int in, unsigned int by) {
-		auto mut = static_cast<unsigned __int64>(in);
-		return ((mut & 0x7FFFFFui64) | ((static_cast<unsigned int>(in) >> 8u) & 0x800000u) /*copy sign bit*/) << by;
-	}
-
-	static size_t posToHash(const vec3_ti& pos);
-
-	template <typename type>
-	static inline auto lerp(type a, type b, float t) -> type {
-		return a + t * (b - a);
-	};
-
 	static inline unsigned int getCrcHash(const char* str, int seed = 0) {
-		static unsigned int crc32_lut[256] = {0};
+		static unsigned int crc32_lut[256] = { 0 };
 		if (!crc32_lut[1]) {
 			const unsigned int polynomial = 0xEDB88320;
 			for (unsigned int i = 0; i < 256; i++) {
@@ -347,6 +329,97 @@ public:
 		}
 	};
 
+	static int HSBtoRGB(float hue, float saturation, float brightness) {
+		int r = 0, g = 0, b = 0;
+		if (saturation == 0) r = g = b = (int)(brightness * 255.0f + 0.5f);
+		else {
+			float h = (hue - (float)floor(hue)) * 6.0f;
+			float f = h - (float)floor(h);
+			float p = brightness * (1.0f - saturation);
+			float q = brightness * (1.0f - saturation * f);
+			float t = brightness * (1.0f - (saturation * (1.0f - f)));
+			switch ((int)h) {
+			case 0:
+				r = (int)(brightness * 255.0f + 0.5f);
+				g = (int)(t * 255.0f + 0.5f);
+				b = (int)(p * 255.0f + 0.5f);
+				break;
+			case 1:
+				r = (int)(q * 255.0f + 0.5f);
+				g = (int)(brightness * 255.0f + 0.5f);
+				b = (int)(p * 255.0f + 0.5f);
+				break;
+			case 2:
+				r = (int)(p * 255.0f + 0.5f);
+				g = (int)(brightness * 255.0f + 0.5f);
+				b = (int)(t * 255.0f + 0.5f);
+				break;
+			case 3:
+				r = (int)(p * 255.0f + 0.5f);
+				g = (int)(q * 255.0f + 0.5f);
+				b = (int)(brightness * 255.0f + 0.5f);
+				break;
+			case 4:
+				r = (int)(t * 255.0f + 0.5f);
+				g = (int)(p * 255.0f + 0.5f);
+				b = (int)(brightness * 255.0f + 0.5f);
+				break;
+			case 5:
+				r = (int)(brightness * 255.0f + 0.5f);
+				g = (int)(p * 255.0f + 0.5f);
+				b = (int)(q * 255.0f + 0.5f);
+				break;
+			}
+		}
+		return 0xff000000 | (r << 16) | (g << 8) | (b << 0);
+	};
+
+	static inline void HSVtoRGB(float h, float s, float v, float& out_r, float& out_g, float& out_b) {
+		if (s == 0.0f) {
+			out_r = out_g = out_b = v;
+			return;
+		}
+		h = ImFmod(h, 1.0f) / (60.0f / 360.0f);
+		int i = (int)h;
+		float f = h - (float)i;
+		float p = v * (1.0f - s);
+		float q = v * (1.0f - s * f);
+		float t = v * (1.0f - s * (1.0f - f));
+		switch (i) {
+		case 0:
+			out_r = v;
+			out_g = t;
+			out_b = p;
+			break;
+		case 1:
+			out_r = q;
+			out_g = v;
+			out_b = p;
+			break;
+		case 2:
+			out_r = p;
+			out_g = v;
+			out_b = t;
+			break;
+		case 3:
+			out_r = p;
+			out_g = q;
+			out_b = v;
+			break;
+		case 4:
+			out_r = t;
+			out_g = p;
+			out_b = v;
+			break;
+		case 5:
+		default:
+			out_r = v;
+			out_g = p;
+			out_b = q;
+			break;
+		}
+	}
+
 	template <unsigned int IIdx, typename TRet, typename... TArgs>
 	static inline auto CallVFunc(void* thisptr, TArgs... argList) -> TRet {
 		//if (thisptr == nullptr)
@@ -355,7 +428,7 @@ public:
 		return (*static_cast<Fn**>(thisptr))[IIdx](thisptr, argList...);
 	}
 
-	template < typename ret>
+	template <typename ret>
 	static inline auto FuncFromSigOffset(uintptr_t sig, int offset) -> ret {
 		return reinterpret_cast<ret>(sig + offset + 4 + *reinterpret_cast<int*>(sig + offset));
 	}
@@ -409,6 +482,14 @@ public:
 
 	static void setClipboardText(std::string& text);
 
+	static void systemPlay(std::string name);
+
+	static void makeFolderInRoaming(std::string file);
+
+	static void makeFolderInPacket(std::string file);
+
+	static void makeFolderInAssets(std::string file);
+
 	static std::string readFileContents(std::wstring filePath) {
 		std::ifstream fileStr(filePath, std::ios::in | std::ios::binary);
 		if (fileStr) {
@@ -438,12 +519,19 @@ public:
 	}
 
 	static uintptr_t FindSignatureModule(const char* szModule, const char* szSignature);
+	static uintptr_t FindSignatureModule(volatile char* szModule, volatile char* szSignature);
 
 	static void GetCurrentSystemTime(tm& timeInfo);
 
 	static void ApplySystemTime(std::stringstream* ss);
 
 	static uintptr_t getBase();
+
+	static void patchBytes(unsigned char* dst, unsigned char* src, unsigned int size);
+
+	static void nopBytes(unsigned char* dst, unsigned int size);
+
+	static bool getShouldLocalPlayerBeImmobile();
 
 	static std::string sanitize(std::string text);
 
@@ -452,7 +540,8 @@ public:
 	static bool endsWith(std::wstring const& fullString, std::wstring const& ending) {
 		if (fullString.length() >= ending.length()) {
 			return (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending));
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -476,3 +565,125 @@ public:
 
 	static std::string getRttiBaseClassName(void* ptr);
 };
+
+//base 64 shit used for sounds
+#ifndef _MACARON_BASE64_H_
+#define _MACARON_BASE64_H_
+
+/**
+ * The MIT License (MIT)
+ * Copyright (c) 2016 tomykaira
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#include <string>
+
+namespace macaron {
+
+	class Base64 {
+	public:
+		static std::string Encode(const std::string data) {
+			static constexpr char sEncodingTable[] = {
+				'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+				'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+				'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+				'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+				'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+				'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+				'w', 'x', 'y', 'z', '0', '1', '2', '3',
+				'4', '5', '6', '7', '8', '9', '+', '/' };
+
+			size_t in_len = data.size();
+			size_t out_len = 4 * ((in_len + 2) / 3);
+			std::string ret(out_len, '\0');
+			size_t i;
+			char* p = const_cast<char*>(ret.c_str());
+
+			for (i = 0; i < in_len - 2; i += 3) {
+				*p++ = sEncodingTable[(data[i] >> 2) & 0x3F];
+				*p++ = sEncodingTable[((data[i] & 0x3) << 4) | ((int)(data[i + 1] & 0xF0) >> 4)];
+				*p++ = sEncodingTable[((data[i + 1] & 0xF) << 2) | ((int)(data[i + 2] & 0xC0) >> 6)];
+				*p++ = sEncodingTable[data[i + 2] & 0x3F];
+			}
+			if (i < in_len) {
+				*p++ = sEncodingTable[(data[i] >> 2) & 0x3F];
+				if (i == (in_len - 1)) {
+					*p++ = sEncodingTable[((data[i] & 0x3) << 4)];
+					*p++ = '=';
+				}
+				else {
+					*p++ = sEncodingTable[((data[i] & 0x3) << 4) | ((int)(data[i + 1] & 0xF0) >> 4)];
+					*p++ = sEncodingTable[((data[i + 1] & 0xF) << 2)];
+				}
+				*p++ = '=';
+			}
+
+			return ret;
+		}
+
+		static std::string Decode(const std::string& input, std::string& out) {
+			static constexpr unsigned char kDecodingTable[] = {
+				64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+				64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+				64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 62, 64, 64, 64, 63,
+				52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 64, 64, 64, 64, 64, 64,
+				64, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+				15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 64, 64, 64, 64, 64,
+				64, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+				41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 64, 64, 64, 64, 64,
+				64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+				64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+				64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+				64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+				64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+				64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+				64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
+				64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64 };
+
+			size_t in_len = input.size();
+			if (in_len % 4 != 0) return "Input data size is not a multiple of 4";
+
+			size_t out_len = in_len / 4 * 3;
+			if (input[in_len - 1] == '=') out_len--;
+			if (input[in_len - 2] == '=') out_len--;
+
+			out.resize(out_len);
+
+			for (size_t i = 0, j = 0; i < in_len;) {
+				uint32_t a = input[i] == '=' ? 0 & i++ : kDecodingTable[static_cast<int>(input[i++])];
+				uint32_t b = input[i] == '=' ? 0 & i++ : kDecodingTable[static_cast<int>(input[i++])];
+				uint32_t c = input[i] == '=' ? 0 & i++ : kDecodingTable[static_cast<int>(input[i++])];
+				uint32_t d = input[i] == '=' ? 0 & i++ : kDecodingTable[static_cast<int>(input[i++])];
+
+				uint32_t triple = (a << 3 * 6) + (b << 2 * 6) + (c << 1 * 6) + (d << 0 * 6);
+
+				if (j < out_len) out[j++] = (triple >> 2 * 8) & 0xFF;
+				if (j < out_len) out[j++] = (triple >> 1 * 8) & 0xFF;
+				if (j < out_len) out[j++] = (triple >> 0 * 8) & 0xFF;
+			}
+
+			return "";
+		}
+	};
+
+}  // namespace macaron
+
+#endif /* _MACARON_BASE64_H_ */
