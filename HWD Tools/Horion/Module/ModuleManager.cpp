@@ -46,6 +46,8 @@ void ModuleManager::initModules() {
 		//moduleList.push_back(std::shared_ptr<IModule>(new HighwayTools()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Excavator()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoLog()));
+		moduleList.push_back(std::shared_ptr<IModule>(new PingDisplay()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Interface()));
 
 		moduleList.push_back(std::shared_ptr<IModule>(new AntiDesync()));
 		moduleList.push_back(std::shared_ptr<IModule>(new RobotHolefiller()));
@@ -59,7 +61,6 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new LiquidMove()));
 		moduleList.push_back(std::shared_ptr<IModule>(new ReverseStep()));
 
-		moduleList.push_back(std::shared_ptr<IModule>(new CrystalAuraWTA()));
 		moduleList.push_back(std::shared_ptr<IModule>(new FastXPtwo()));
 		moduleList.push_back(std::shared_ptr<IModule>(new BPGRewrite()));
 		moduleList.push_back(std::shared_ptr<IModule>(new FastXP()));
@@ -125,8 +126,7 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new AntiBot()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Derp()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Crasher()));
-		moduleList.push_back(std::shared_ptr<IModule>(new CrystalAura()));
-		moduleList.push_back(std::shared_ptr<IModule>(new CrystalAuraOW()));
+		moduleList.push_back(std::shared_ptr<IModule>(new CrystalAuraGK()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Disabler()));
 		moduleList.push_back(std::shared_ptr<IModule>(new NightMode()));
 		moduleList.push_back(std::shared_ptr<IModule>(new NoSwing()));
@@ -142,7 +142,6 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new	Spider()));
 		moduleList.push_back(std::shared_ptr<IModule>(new	Compass()));
 		moduleList.push_back(std::shared_ptr<IModule>(new	Radar()));
-		moduleList.push_back(std::shared_ptr<IModule>(new VanillaPlus()));
 		moduleList.push_back(std::shared_ptr<IModule>(new ViewModel()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Twerk()));
 		moduleList.push_back(std::shared_ptr<IModule>(new FontChanger()));
