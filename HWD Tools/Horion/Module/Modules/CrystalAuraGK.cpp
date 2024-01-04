@@ -1,4 +1,5 @@
 #include "CrystalAuraGK.h"
+#include "../../../Utils/ColorUtil.h"
 
 using namespace std;
 
@@ -138,7 +139,7 @@ bool checkSurrounded222(C_Entity* ent)
 
 	for (auto blocks : blockChecks)
 	{
-		if (!wtf2(&blocks->toVector3(), ent)) //error here
+		if (!wtf2(&blocks->toVec3t(), ent)) //check here
 		{
 			return false;
 		}
@@ -170,7 +171,7 @@ std::vector<vec3_t*> wtf3(C_Entity* ent)
 		auto blkIDLLL = g_Data.getLocalPlayer()->region->getBlock(vec3_ti(blocks->x, blocks->y - 3, blocks->z))->toLegacy()->blockId;
 		auto blkIDLLLL = g_Data.getLocalPlayer()->region->getBlock(vec3_ti(blocks->x, blocks->y - 4, blocks->z))->toLegacy()->blockId;
 
-		if (!wtf2(&blocks->toVector3(), ent)) //error here
+		if (!wtf2(&blocks->toVec3t(), ent)) //double check here
 		{ // very efficient coding here
 
 			if (blkID == 0 && blkIDL == 0 && (blkIDLL == 49 || blkIDLL == 7))
