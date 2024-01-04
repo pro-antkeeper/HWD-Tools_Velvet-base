@@ -61,7 +61,7 @@ void ConfigManager::loadConfig(std::string name, bool create) {
 			} catch (json::parse_error& e) {
 				logF("Config Load Exception!: %s", e.what());
 			}
-			currentConfigObj["from"] = "Velvet";
+			currentConfigObj["from"] = "HIGHWAY";
 		}
 
 		if (configExists) {
@@ -77,15 +77,15 @@ void ConfigManager::loadConfig(std::string name, bool create) {
 
 		if (g_Data.getLocalPlayer() != nullptr) {
 			static bool helpedUser = false;
-			g_Data.getGuiData()->displayClientMessageF("[%sVelvet%s] %sSuccessfully %s config %s%s%s!", GOLD, WHITE, GREEN, !configExists ? "created" : "loaded", GRAY, name.c_str(), GREEN);
+			g_Data.getGuiData()->displayClientMessageF("[%sHIGHWAY%s] %sSuccessfully %s config %s%s%s!", GOLD, WHITE, GREEN, !configExists ? "created" : "loaded", GRAY, name.c_str(), GREEN);
 			if (!helpedUser && name != "default") {
 				helpedUser = true;
-				g_Data.getGuiData()->displayClientMessageF("[%sVelvet%s] %sEnter \"%s%cconfig load default%s\" to load your old config!", GOLD, WHITE, YELLOW, WHITE, cmdMgr->prefix, YELLOW);
+				g_Data.getGuiData()->displayClientMessageF("[%sHIGHWAY%s] %sEnter \"%s%cconfig load default%s\" to load your old config!", GOLD, WHITE, YELLOW, WHITE, cmdMgr->prefix, YELLOW);
 			}
 		}
 	} else {
 		if (g_Data.getLocalPlayer() != nullptr) 
-			g_Data.getGuiData()->displayClientMessageF("[%sVelvet%s] %sCould not load config %s%s%s!", GOLD, WHITE, RED, GRAY, name.c_str(), RED);
+			g_Data.getGuiData()->displayClientMessageF("[%sHIGHWAY%s] %sCould not load config %s%s%s!", GOLD, WHITE, RED, GRAY, name.c_str(), RED);
 	}
 
 	delete[] fullPath;
