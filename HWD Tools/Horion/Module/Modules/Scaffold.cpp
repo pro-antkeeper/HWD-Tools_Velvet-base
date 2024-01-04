@@ -820,9 +820,8 @@ bool Scaffold::buildBlock(vec3_t blockBelow)
 		}
 		if (foundBlock)
 		{
-			g_Data.getCGameMode()->buildBlock(&blok, i, true);
-			vec3_ti calcPos = vec3_ti(blok);
-			calcPos = calcPos.add(0.78f, 0.78f, 0.78f);
+			g_Data.getCGameMode()->buildBlock(&blok, i, 1); //idk what the extra should be
+			calcPos = blok.toVec3t().add(0.78f, 0.78f, 0.78f);
 			return true;
 		}
 	}
@@ -889,9 +888,8 @@ bool Scaffold::predictBlock(vec3_t blockBelow)
 			}
 			if (foundBlock)
 			{
-				g_Data.getCGameMode()->buildBlock(&blok, i, true);
-				vec3_ti calcPos = vec3_ti(blok);
-				calcPos = calcPos.add(0.78f, 0.78f, 0.78f);
+				g_Data.getCGameMode()->buildBlock(&blok, i, 1);
+				calcPos = blok.toVec3t().add(0.78f, 0.78f, 0.78f);
 				return true;
 			}
 		}
