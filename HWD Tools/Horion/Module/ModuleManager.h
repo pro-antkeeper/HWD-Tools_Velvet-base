@@ -40,6 +40,7 @@
 #include "Modules/Watermark.h"
 #include "Modules/Theme.h"
 #include "Modules/AutoHighway.h"
+#include "Modules/Interface.h"
 #include "Modules/YawLock.h" //end
 
 #include "Modules/AntiDesync.h"
@@ -54,10 +55,9 @@
 #include "Modules/LiquidMove.h"
 #include "Modules/ReverseStep.h"
 
-#include "Modules/CrystalAuraWTA.h"
 #include "Modules/FastXPtwo.h"
 #include "Modules/BPGRewrite.h"
-#include "Modules/CrystalUtilsJTWD.h"  // in progress
+#include "Modules/CrystalUtilsJTWD.h"  // by merci
 #include "Modules/NoClip.h"		  // works
 #include "Modules/surround.h"     // fixed
 #include "Modules/AutoTrap.h"	  // fixed
@@ -85,8 +85,7 @@
 #include "Modules/Teleport.h"
 #include "Modules/Crasher.h"
 #include "Modules/Criticals.h"
-#include "Modules/CrystalAura.h"
-#include "Modules/CrystalAuraOW.h"
+#include "Modules/CrystalAuraGK.h"
 #include "Modules/Disabler.h"
 #include "Modules/Derp.h"
 #include "Modules/ESP.h"
@@ -136,11 +135,11 @@
 #include "Modules/Spider.h"
 #include "Modules/Compass.h"
 #include "Modules/Radar.h"
-#include "Modules/VanillaPlus.h"
 #include "Modules/ViewModel.h"
 #include "Modules/Twerk.h"
 #include "Modules/FontChanger.h"
 #include "Modules/Coordinates.h"
+#include "Modules/PingDisplay.h"
 //#include "Modules/HighwayTools.h"
 
 #ifdef _DEBUG
