@@ -1,5 +1,5 @@
 #pragma once
-#include "../Gamesense/Module/ModuleManager.h"
+#include "../Horion/Module/ModuleManager.h"
 #include "../SDK/CEntity.h"
 #include <vector>
 
