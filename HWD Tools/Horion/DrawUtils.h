@@ -8,11 +8,13 @@
 #include "../Utils/Target.h"
 #include "../Utils/Utils.h"
 
-enum class Fonts { DEFAULT,
-				   MCFONT,
-				   UNICOD,
-				   SMOOTH,
-				   RUNE };
+enum class Fonts {
+	DEFAULT,
+	MCFONT,
+	UNICOD,
+	SMOOTH,
+	RUNE
+};
 
 using mce__VertexFormat__disableHalfFloats_t = void(__fastcall*)(__int64, int, int);
 using Tessellator__initializeFormat_t = void(__fastcall*)(__int64, __int64);
@@ -88,6 +90,7 @@ public:
 	static void setCtx(C_MinecraftUIRenderContext* ctx, C_GuiData* guiData);
 	static void setGameRenderContext(__int64 ctx);
 	static void flush();
+	static void drawSteve(vec4_t(pos));
 	static void setColor(float r, float g, float b, float a);  // rgba, values from 0 to 1
 	static inline void tess__begin(Tessellator* tesselator, int vertexFormat = 3, int numVerticesReserved = 0);
 	static C_Font* getFont(Fonts font);
@@ -96,6 +99,8 @@ public:
 	static MatrixStack* getMatrixStack();
 	static float getTextWidth(std::string* textStr, float textSize = 1, Fonts font = Fonts::SMOOTH);
 	static float getFontHeight(float textSize = 1, Fonts font = Fonts::SMOOTH);
+	static void drawTracer(C_Entity* ent);
+	static void drawTracer(const C_Entity* ent);
 
 	static void drawTriangle(const vec2_t& p1, const vec2_t& p2, const vec2_t& p3);
 	static void drawQuad(const vec2_t& p1, const vec2_t& p2, const vec2_t& p3, const vec2_t& p4);
@@ -104,15 +109,22 @@ public:
 	static void drawLine3d(const vec3_t& start, const vec3_t& end);
 	static void drawBox3d(const vec3_t& lower, const vec3_t& upper);
 	static void fillRectangle(const vec4_t& pos, const MC_Color& col, float alpha);
+	static void fillRectangleA(vec4_t pos, MC_Color col);
+	static void drawRoundRectangle(vec4_t pos, const MC_Color col, bool rounder);
+	static void drawRoundRectangle2(vec4_t pos, const MC_Color col);
+	static void fillRoundRectangle(vec4_t pos, const MC_Color col, bool rounder);
 	static inline void fillRectangle(const vec2_t& start, const vec2_t& end) {
-		DrawUtils::drawQuad({start.x, end.y}, {end.x, end.y}, {end.x, start.y}, {start.x, start.y});
+		DrawUtils::drawQuad({ start.x, end.y }, { end.x, end.y }, { end.x, start.y }, { start.x, start.y });
+	}
+	static inline void fillRectangleA(vec2_t start, vec2_t end) {
+		DrawUtils::drawQuad({ start.x, end.y }, { end.x, end.y }, { end.x, start.y }, { start.x, start.y });
 	}
 	static inline void drawRectangle(const vec2_t& start, const vec2_t& end, float lineWidth = 1.0f) {
 		lineWidth /= 2;
-		fillRectangle({start.x - lineWidth, start.y - lineWidth}, {end.x + lineWidth, start.y + lineWidth});  // TOP
-		fillRectangle({start.x - lineWidth, start.y}, {start.x + lineWidth, end.y});                          // LEFT
-		fillRectangle({end.x - lineWidth, start.y}, {end.x + lineWidth, end.y});                              //
-		fillRectangle({start.x - lineWidth, end.y - lineWidth}, {end.x + lineWidth, end.y + lineWidth});
+		fillRectangle({ start.x - lineWidth, start.y - lineWidth }, { end.x + lineWidth, start.y + lineWidth });  // TOP
+		fillRectangle({ start.x - lineWidth, start.y }, { start.x + lineWidth, end.y });                          // LEFT
+		fillRectangle({ end.x - lineWidth, start.y }, { end.x + lineWidth, end.y });                              //
+		fillRectangle({ start.x - lineWidth, end.y - lineWidth }, { end.x + lineWidth, end.y + lineWidth });
 	}
 	static inline void drawRectangle(const vec4_t& pos, const MC_Color& col, float alpha, float lineWidth = 1.0f) {
 		lineWidth /= 2;
@@ -125,9 +137,10 @@ public:
 
 	static void drawTextInWorld(std::string* textToSay, const vec3_t& location, float tsize, vec3_ti tColor, vec3_ti bgColor, float opacity);
 
+	static void drawCircle(vec4_t(pos), MC_Color col);
 	static void drawText(const vec2_t& pos, std::string* text, const MC_Color& color, float textSize = 1, float alpha = 1, Fonts font = Fonts::SMOOTH);
+	static void drawCenteredString(vec2_t pos, std::string* textStr, float textSize, MC_Color color, bool hasShadow);
 	static void drawBox(const vec3_t& lower, const vec3_t& upper, float lineWidth, bool outline = false);
-	static void drawSolidBox(const vec3_t& lower, const vec3_t& upper, const MC_Color& color, float alpha);
 	static void drawEntityBox(C_Entity* ent, float lineWidth);
 	static void draw2D(C_Entity* ent, float lineWidth);
 	static void drawNameTags(C_Entity* ent, float textSize, bool drawHealth = false, bool useUnicodeFont = false);
