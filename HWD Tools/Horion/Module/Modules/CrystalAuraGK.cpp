@@ -1,5 +1,4 @@
 #include "CrystalAuraGK.h"
-#include "../../../Utils/ColorUtil.h"
 
 using namespace std;
 
@@ -371,7 +370,7 @@ void CrystalAuraGK::onPreRender(C_MinecraftUIRenderContext* renderCtx)
 	if (renderGK)
 	{
 		C_LocalPlayer* localPlayer = g_Data.getLocalPlayer();
-		auto cd = ColorUtil::interfaceColor(1); //error here
+		auto cd = Interface::interfaceColor(1); //error here
 		if (localPlayer != nullptr && GameData::canUseMoveKeys())
 		{
 
@@ -401,7 +400,7 @@ void CrystalAuraGK::onPreRender(C_MinecraftUIRenderContext* renderCtx)
 						if (fill)
 						{
 							C_LocalPlayer* localPlayer = g_Data.getLocalPlayer();
-							auto cd = ColorUtil::interfaceColor(1); //error here
+							auto cd = Interface::interfaceColor(1); //error here
 							vec3_t block = postt->floor().add(0.5, 0.5, 0.5);
 							float rentimer = 1;
 							float zero = rentimer / 2;
