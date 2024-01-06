@@ -1,21 +1,23 @@
-#include "ArrayList.h"
+#include "Arraylist.h"
+ArrayList::ArrayList() : IModule(0, Category::HUD, "ArrayList") {
+	//registerEnumSetting("Modes", &Modes, 0);
+		//Modes = SettingEnum(this)
+	//.addEntry(EnumEntry("Top", 0))
+	//.addEntry(EnumEntry("Bottom", 1));
 
-float ArrayList::opacity{ 0 };
-
-ArrayList::ArrayList() : IModule(0x0, Category::HUD, "draws the array list on the right of your screen") {
-	registerBoolSetting("Rainbow Array", &this->rainbowArrayList, this->rainbowArrayList);
 	registerBoolSetting("Bottom", &this->bottom, this->bottom);
-	registerBoolSetting("Show Keybinds", &this->keybinds, this->keybinds);
-	registerBoolSetting("Outline", &this->outline, this->outline);
-	registerBoolSetting("Underline", &this->underline, this->underline);
-	registerFloatSetting("ArrayList Opacity", &opacity, opacity, 0.f, 1.f);
-	registerFloatSetting("Scale", &this->scale, this->scale, 0.5f, 1.5f);
+	//registerBoolSetting("RGBAback", &this->Backgroundrgba, this->Backgroundrgba);
+	registerBoolSetting("RGBA", &this->rgba, this->rgba);
+	registerBoolSetting("Cool", &this->Cool, this->Cool);
+	registerFloatSetting("Scale", &scale, scale, 0.5f, 1.5f);
+	registerFloatSetting("Opacity", &this->opacity, this->opacity, 0.f, 1.0f);
 	registerIntSetting("ColorOpacity", &arraycoloropa, arraycoloropa, 0, 255);
+	registerBoolSetting("BUG ARRAY", &this->bugs, this->bugs);
 }
 
-ArrayList::~ArrayList() {
-}
+ArrayList::~ArrayList() {};
+
 
 const char* ArrayList::getModuleName() {
-	return ("Arraylist");
+	return ("ArrayList");
 }
