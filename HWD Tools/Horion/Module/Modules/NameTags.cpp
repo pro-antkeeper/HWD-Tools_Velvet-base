@@ -1,65 +1,62 @@
 #include "NameTags.h"
-#include "../../../pch.h"
 
-NameTags::NameTags() : IModule(0, Category::VISUAL, "Displays a more detailed name")
-{
-	registerFloatSetting("Scale", &scalen, scalen, 0.3f, 1.5f);
-	registerEnumSetting("Render", &renderMode, 1);
-	renderMode.addEntry(EnumEntry("None", 0));
-	renderMode.addEntry(EnumEntry("Underline", 1));
-	renderMode.addEntry(EnumEntry("Rectangle", 2));
-	registerBoolSetting("Show Armor", &displayArmor, displayArmor);
-	registerBoolSetting("Health", &drawhealth, drawhealth);
-	registerIntSetting("Opacity", &opacity, opacity, 0, 255);
+#include "../../../Utils/Target.h"
+#include "../ModuleManager.h"
+
+NameTags::NameTags() : IModule(0, Category::VISUAL, "shows who tf is joe") {
+	registerBoolSetting("Underline", &underline, underline);
+	registerBoolSetting("Armor", &displayArmor, displayArmor);
+	registerBoolSetting("Health", &showHealth, showHealth);
+	registerFloatSetting("Opacity", &opacity, opacity, 0.f, 1.f);
 }
 
-const char* NameTags::getModuleName()
-{
+NameTags::~NameTags() {
+}
+
+const char* NameTags::getModuleName() {
 	return ("NameTags");
 }
 
-void drawNameTags(C_Entity* ent, bool)
-{
-	static auto nametags = moduleMgr->getModule<NameTags>();
+void drawNameTags(C_Entity* ent, bool) {
+	C_LocalPlayer* localPlayer = g_Data.getLocalPlayer();
+	static auto nameTagsMod = moduleMgr->getModule<NameTags>();
 
-	if (ent->timeSinceDeath > 0)
-		return;
-	if (ent->getNameTag()->getTextLength() < 1)
-		return;
-	if (TargetUtil::isValidTarget(ent) && nametags->isEnabled() || (FriendList::findPlayer(ent->getNameTag()->getText()) && ent->getNameTag()->getTextLength() >= 1 && ent->getEntityTypeId() == 319))
-	{
-		nametags->nameTags.insert(Utils::sanitize(ent->getNameTag()->getText()));
-		float dist = ent->getPos()->dist(*g_Data.getLocalPlayer()->getPos());
-		// DrawUtils::drawNameTags(ent, fmax(0.6f, 3.f / dist));
-		DrawUtils::drawNameTags(ent, fmax(nametags->scalen, 3.f / dist));
-		DrawUtils::flush();
+	if (ent != localPlayer) {
+		if (ent->timeSinceDeath > 0)
+			return;
+		if (ent->getNameTag()->getTextLength() < 1)
+			return;
+		if (Target::isValidTarget(ent) && nameTagsMod != nullptr) {
+			nameTagsMod->nameTags.insert(Utils::sanitize(ent->getNameTag()->getText()));
+			float dist = ent->getPos()->dist(*g_Data.getLocalPlayer()->getPos());
+			DrawUtils::drawNameTags(ent, fmax(0.6f, 3.f / dist), nameTagsMod->showHealth);
+			DrawUtils::flush();
+		}
 	}
 }
 
-void NameTags::onPreRender(C_MinecraftUIRenderContext* renderCtx)
-{
-	if (!g_Data.canUseMoveKeys())
-		return;
+void NameTags::onPreRender(C_MinecraftUIRenderContext* renderCtx) {
+	C_LocalPlayer* localPlayer = g_Data.getLocalPlayer();
+	if (localPlayer == nullptr || !GameData::canUseMoveKeys()) return;
 
-	// retarded
-	if (ingameNametagSetting && hideTags)
-		if (!gotPrevSetting)
-		{
+	if (ingameNametagSetting)
+		if (!gotPrevSetting) {
 			lastSetting = *ingameNametagSetting;
 			gotPrevSetting = true;
 			*ingameNametagSetting = false;
 		}
 		else
-			*ingameNametagSetting = false; // disable other ppl's nametags
+			*ingameNametagSetting = false;  //disable other ppl's nametags
 
 	g_Data.forEachEntity(drawNameTags);
 }
 
-void NameTags::onDisable()
-{
-	if (ingameNametagSetting && gotPrevSetting && hideTags)
-	{
-		*ingameNametagSetting = lastSetting;
-		gotPrevSetting = false;
+void NameTags::onDisable() {
+	if (g_Data.getLocalPlayer() != nullptr) {
+		if (ingameNametagSetting && gotPrevSetting) {
+			*ingameNametagSetting = lastSetting;
+			gotPrevSetting = false;
+		}
+		//*ingameNametagSetting = true; //fix crash
 	}
 }
