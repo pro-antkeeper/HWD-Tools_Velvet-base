@@ -46,10 +46,12 @@ std::string Utils::sanitize(std::string text) {
 		if (wasValid) {
 			if (!isValid) {
 				wasValid = false;
-			} else {
+			}
+			else {
 				out += c;
 			}
-		} else {
+		}
+		else {
 			wasValid = isValid;
 		}
 	}
@@ -119,7 +121,8 @@ size_t Utils::posToHash(const vec3_ti& pos) {
 std::string Utils::getClipboardText() {
 	if (!OpenClipboard(nullptr)) {
 		return "";
-	} else {
+	}
+	else {
 		HANDLE hData = GetClipboardData(CF_TEXT);
 		char* pszText = static_cast<char*>(GlobalLock(hData));
 		if (pszText == nullptr)
@@ -186,7 +189,8 @@ uintptr_t Utils::FindSignatureModule(const char* szModule, const char* szSignatu
 
 			//else
 			pattern += 2;
-		} else {
+		}
+		else {
 			pattern = szSignature;
 			firstMatch = 0;
 		}
