@@ -1,4 +1,4 @@
-#define NOMINMAX // fixes da std::min eror
+//#define NOMINMAX // fixes da std::min eror
 #include "CrystalUtilsJTWD.h"
 #include "../../Utils/Target.h"
 #include "../ModuleManager.h"
