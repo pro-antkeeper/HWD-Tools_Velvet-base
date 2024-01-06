@@ -10,6 +10,7 @@ ArrayList::ArrayList() : IModule(0x0, Category::HUD, "draws the array list on th
 	registerBoolSetting("Underline", &this->underline, this->underline);
 	registerFloatSetting("ArrayList Opacity", &opacity, opacity, 0.f, 1.f);
 	registerFloatSetting("Scale", &this->scale, this->scale, 0.5f, 1.5f);
+	registerIntSetting("ColorOpacity", &arraycoloropa, arraycoloropa, 0, 255);
 }
 
 ArrayList::~ArrayList() {
