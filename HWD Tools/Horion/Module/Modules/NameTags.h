@@ -1,32 +1,24 @@
 #pragma once
-#include "../../../Utils/TargetUtil.h"
-#include "../ModuleManager.h"
-#include "../../../Horion/DrawUtils.h"
+
 #include "Module.h"
+#include <set>
 
 class NameTags : public IModule {
 public:
 	std::set<std::string> nameTags;
 	bool displayArmor = true;
-	bool displayDurability = true;
-	bool drawhealth = true;
-	//bool underline = true;
-	bool hideTags = false;
-	bool fsync = false;
-	float scalen = 0.6f;
-	float fred = 0.f;
-	float fgreen = 255.f;
-	float fblue = 255.f;
-	int opacity = 150;
+	bool underline = true;
+	bool showHealth = true;
+	float opacity = 0.2f;
+	NameTags();
+	~NameTags();
 
 	bool* ingameNametagSetting = nullptr;
-	bool gotPrevSetting = false;
 	bool lastSetting = true;
+	bool gotPrevSetting = false;
 
-	SettingEnum renderMode = this;
-
-	virtual void onPreRender(C_MinecraftUIRenderContext* renderCtx);
-	virtual const char* getModuleName();
-	virtual void onDisable();
-	NameTags();
+	// Inherited via IModule
+	virtual const char* getModuleName() override;
+	virtual void onPreRender(C_MinecraftUIRenderContext* renderCtx) override;
+	virtual void onDisable() override;
 };
