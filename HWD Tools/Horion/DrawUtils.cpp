@@ -3,6 +3,7 @@
 #include "Module/ModuleManager.h"
 #include <Windows.h>
 #include "../Utils/Logger.h"
+#include "../Utils/ColorUtil.h"
 
 struct MaterialPtr {
 	char padding[0x138];
@@ -429,8 +430,7 @@ void DrawUtils::drawNameTags(C_Entity* ent, float textSize, bool drawHealth, boo
 	auto newText = text + gamerText;
 	float textHeight = DrawUtils::getFont(Fonts::SMOOTH)->getLineHeight() * textSize;
 
-	if (refdef->OWorldToScreen(origin, ent->eyePos0.add(0, 0.5f, 0), textPos, fov, screenSize))
-	{
+	if (refdef->OWorldToScreen(origin, ent->eyePos0.add(0, 0.5f, 0), textPos, fov, screenSize)) {
 		textPos.y -= textHeight;
 		textPos.x -= textWidth / 2.f;
 		rectPos.x = textPos.x - 1.f * textSize;
@@ -438,153 +438,36 @@ void DrawUtils::drawNameTags(C_Entity* ent, float textSize, bool drawHealth, boo
 		rectPos.z = textPos.x + textWidth + 1.f * textSize;
 		rectPos.w = textPos.y + textHeight + 2.f * textSize;
 		vec4_t subRectPos = rectPos;
-		subRectPos.y = subRectPos.w - 0.75f * textSize;
-		auto nametagsMod = moduleMgr->getModule<NameTags>();
-		// fillRectangleA(rectPos, MC_Color(0, 0, 0, nametagsMod->opacity));
-		if (ent->damageTime > 1)
-			fillRectangleA(rectPos, MC_Color(255, 0, 0, nametagsMod->opacity));
-		else
-			fillRectangleA(rectPos, MC_Color(0, 0, 0, nametagsMod->opacity));
-		auto interfaceColor = ColorUtil::interfaceColor(1);
-		if (nametagsMod->renderMode.selected == 1)
-		{
-			fillRectangle(subRectPos, MC_Color(interfaceColor), 1.f);
+		subRectPos.y = subRectPos.w - 1.f * textSize;
+		static auto nametagsMod = moduleMgr->getModule<NameTags>();
+		fillRectangle(rectPos, MC_Color(12, 12, 12), nametagsMod->opacity);
+		if (nametagsMod->underline) {
+			fillRectangle(subRectPos, MC_Color(85, 85, 85), 0.9f);
 		}
-		if (nametagsMod->renderMode.selected == 2)
-		{
-			DrawUtils::drawRectangle(rectPos, MC_Color(interfaceColor), 1.f, 0.7f);
-		}
-		if (FriendList::findPlayer(ent->getNameTag()->getText()) && ent->getNameTag()->getTextLength() >= 1 && ent->getEntityTypeId() == 319)
-		{
-			if (nametagsMod->fsync)
-			{
-				auto i = ColorUtil::interfaceColor(1);
-				drawText(textPos, &text, MC_Color(i.r, i.g, i.b), textSize, 1.f, Fonts::SMOOTH);
-			}
-			if (!nametagsMod->fsync)
-			{
-				drawText(textPos, &text, MC_Color(nametagsMod->fred, nametagsMod->fgreen, nametagsMod->fblue), textSize, 1.f, Fonts::SMOOTH);
-			}
-		}
-		else
-			drawText(textPos, &text, MC_Color(255, 255, 255), textSize, 1.f, Fonts::SMOOTH);
-		// drawText(textPos, &text, MC_Color(255, 255, 255), textSize, 1.f, true);
+
+		drawText(textPos, &text, MC_Color(255, 255, 255), textSize);
 
 		static auto nameTagsMod = moduleMgr->getModule<NameTags>();
-		// health
-		if (nameTagsMod->drawhealth)
-		{
-			if (ent->getHealth() >= 15.f)
-				gamerText = (std::string)GREEN + gamerText;
-			else if (ent->getHealth() >= 10.f && ent->getHealth() < 15.f)
-				gamerText = (std::string)YELLOW + gamerText;
-			else if (ent->getHealth() >= 5.f && ent->getHealth() < 10.f)
-				gamerText = (std::string)RED + gamerText;
-			else if (ent->getHealth() > 0.f && ent->getHealth() < 5.f)
-				gamerText = (std::string)DARK_RED + gamerText;
 
-			auto newText = text + gamerText;
-			drawText(textPos, &newText, (FriendList::findPlayer(ent->getNameTag()->getText()) ? (MC_Color(0, 255, 255)) : MC_Color(255, 255, 255)), textSize);
-		}
-		if (ent->getEntityTypeId() == 319 && nameTagsMod->displayArmor)
-		{ // animals dont hav amor :rage:
+		if (ent->getEntityTypeId() == 63 && nameTagsMod->displayArmor) {  // is player, show armor
 			auto* player = reinterpret_cast<C_Player*>(ent);
 			float scale = textSize * 0.6f;
 			float spacing = scale + 15.f;
 			float x = rectPos.x + 1.f * textSize;
 			float y = rectPos.y - 20.f * scale;
-			float itemHeight = DrawUtils::getFont(Fonts::SMOOTH)->getLineHeight() * scale;
 			// armor
-			for (int i = 0; i < 4; i++)
-			{
+			for (int i = 0; i < 4; i++) {
 				C_ItemStack* stack = player->getArmor(i);
-				if (stack->item != nullptr)
-				{
-					float dura1 = stack->getItem()->getMaxDamage();
-					float dura2 = stack->getItem()->getDamageValue(stack->tag);
-					float dura3 = dura1 - dura2;
-					int dura4 = dura3 / dura1 * 100;
-					std::string durastr = std::to_string((int)dura4);
-					MC_Color green(0, 255, 0);
-					MC_Color red(255, 0, 0);
-					float dura5 = dura3 / dura1 * 100;
-					float fraction = dura5 / 100;
-					vec3_t greenVec(0, 0, 0);
-					vec3_t redVec(0, 0, 0);
-					Utils::ColorConvertRGBtoHSV(green.r, green.g, green.b, greenVec.x, greenVec.y, greenVec.z);
-					Utils::ColorConvertRGBtoHSV(red.r, red.g, red.b, redVec.x, redVec.y, redVec.z);
-					vec3_t colorVec = redVec.lerp(greenVec, fraction, fraction, fraction);
-
-					MC_Color gamerColor(0, 0, 0);
-
-					Utils::ColorConvertHSVtoRGB(colorVec.x, colorVec.y, colorVec.z, gamerColor.r, gamerColor.g, gamerColor.b);
-
-					DrawUtils::drawItem(stack, vec2_t(x, y), 1.f, scale, false);
-					// DrawUtils::drawText(vec2_t(x, y - itemHeight), &durastr, MC_Color(gamerColor), textSize * 0.55f, 1.f, true);
-					DrawUtils::drawCenteredString(vec2_t(x + textSize * 4.5f, y), &durastr, textSize * 0.6f, MC_Color(gamerColor), true);
+				if (stack->item != nullptr) {
+					DrawUtils::drawItem(stack, vec2_t(x, y), 1.f, scale, stack->isEnchanted());
 					x += scale * spacing;
 				}
 			}
 			// item
 			{
 				C_ItemStack* stack = player->getSelectedItem();
-				if (stack->item != nullptr)
-				{
-					float dura1 = stack->getItem()->getMaxDamage();
-					float dura2 = stack->getItem()->getDamageValue(stack->tag);
-					float dura3 = dura1 - dura2;
-					int dura4 = dura3 / dura1 * 100;
-					std::string durastr = std::to_string((int)dura4);
-					MC_Color green(0, 255, 0);
-					MC_Color red(255, 0, 0);
-					float dura5 = dura3 / dura1 * 100;
-					float fraction = dura5 / 100;
-					vec3_t greenVec(0, 0, 0);
-					vec3_t redVec(0, 0, 0);
-					Utils::ColorConvertRGBtoHSV(green.r, green.g, green.b, greenVec.x, greenVec.y, greenVec.z);
-					Utils::ColorConvertRGBtoHSV(red.r, red.g, red.b, redVec.x, redVec.y, redVec.z);
-					vec3_t colorVec = redVec.lerp(greenVec, fraction, fraction, fraction);
-
-					MC_Color gamerColor(0, 0, 0);
-
-					Utils::ColorConvertHSVtoRGB(colorVec.x, colorVec.y, colorVec.z, gamerColor.r, gamerColor.g, gamerColor.b);
-					// if (!dura1 == 0) DrawUtils::drawText(vec2_t(rectPos.z - 1.f - 15.f * scale, y - itemHeight), &durastr, MC_Color(gamerColor), textSize * 0.55f, 1.f, true);
-					if (!dura1 == 0)
-						DrawUtils::drawCenteredString(vec2_t(rectPos.z - textSize * 4.5f, y), &durastr, textSize * 0.6f, MC_Color(gamerColor), true);
-					DrawUtils::drawItem(stack, vec2_t(rectPos.z - 1.f - 15.f * scale, y), 1.f, scale, false);
-				}
-			}
-			// offhand (WIP)
-			{
-				C_PlayerInventoryProxy* supplies = g_Data.getLocalPlayer()->getSupplies();
-				C_Inventory* inv = supplies->inventory;
-				{
-					C_ItemStack* stackOff = inv->getItemStack(37); // nigga did infact NOT work
-					if (stackOff->item != nullptr)
-					{
-						float dura1 = stackOff->getItem()->getMaxDamage();
-						float dura2 = stackOff->getItem()->getDamageValue(stackOff->tag);
-						float dura3 = dura1 - dura2;
-						int dura4 = dura3 / dura1 * 100;
-						std::string durastr = std::to_string((int)dura4);
-						MC_Color green(0, 255, 0);
-						MC_Color red(255, 0, 0);
-						float dura5 = dura3 / dura1 * 100;
-						float fraction = dura5 / 100;
-						vec3_t greenVec(0, 0, 0);
-						vec3_t redVec(0, 0, 0);
-						Utils::ColorConvertRGBtoHSV(green.r, green.g, green.b, greenVec.x, greenVec.y, greenVec.z);
-						Utils::ColorConvertRGBtoHSV(red.r, red.g, red.b, redVec.x, redVec.y, redVec.z);
-						vec3_t colorVec = redVec.lerp(greenVec, fraction, fraction, fraction);
-
-						MC_Color gamerColor(0, 0, 0);
-
-						Utils::ColorConvertHSVtoRGB(colorVec.x, colorVec.y, colorVec.z, gamerColor.r, gamerColor.g, gamerColor.b);
-						// if (!dura1 == 0) DrawUtils::drawText(vec2_t(rectPos.z - 1.f - 15.f * scale, y - itemHeight), &durastr, MC_Color(gamerColor), textSize * 0.55f, 1.f, true);
-						if (!dura1 == 0)
-							DrawUtils::drawCenteredString(vec2_t(rectPos.z - textSize * 4.5f, y), &durastr, textSize * 0.6f, MC_Color(gamerColor), true);
-						DrawUtils::drawItem(stackOff, vec2_t(rectPos.z - 1.f - 15.f * scale, y), 1.f, scale, false);
-					}
+				if (stack->item != nullptr) {
+					DrawUtils::drawItem(stack, vec2_t(rectPos.z - 1.f - 15.f * scale, y), 1.f, scale, stack->isEnchanted());
 				}
 			}
 		}
