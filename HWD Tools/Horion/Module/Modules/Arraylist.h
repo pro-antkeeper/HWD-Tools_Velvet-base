@@ -10,6 +10,7 @@ public:
 	bool keybinds = true;
 	bool outline = false;
 	bool underline = false;
+	int arraycoloropa = 150;
 	float scale = 1.f;
 	static float opacity;
 
