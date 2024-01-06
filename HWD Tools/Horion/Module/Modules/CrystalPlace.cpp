@@ -2,7 +2,6 @@
 #include "CrystalUtilsJTWD.h"
 #include "../../Utils/Target.h"
 #include "../ModuleManager.h"
-#include "../../../Utils/ColorUtil.h"
 
 using namespace std;
 // EZ CA
@@ -1065,7 +1064,7 @@ void CrystalPlace::onPreRender(C_MinecraftUIRenderContext* renderCtx)
 
 	if (renderPlacing)
 	{
-		auto interfacrColor = ColorUtil::interfaceColor(1);
+		auto interfacrColor = Interface::interfaceColor(1);
 		for (CrystalInfo& indivCrystal : CJTWDPlaceArr)
 		{
 			if (CJTWDPlaceArr.size() == 0 || tgtList.size() == 0)
@@ -1090,7 +1089,7 @@ void CrystalPlace::onPreRender(C_MinecraftUIRenderContext* renderCtx)
 
 			if (drawSelfDmg && syncSelfDmg)
 			{
-				auto interfaceColor = ColorUtil::interfaceColor(1);
+				auto interfaceColor = Interface::interfaceColor(1);
 				DrawUtils::drawTextInWorld(&self_dmg, placeLoc.sub(0, 1.4f, 0), 0.6f, vec3_ti(interfaceColor.r, interfaceColor.g, interfaceColor.b), vec3_ti(12, 12, 12), .1f);
 			}
 
@@ -1106,13 +1105,13 @@ void CrystalPlace::onPreRender(C_MinecraftUIRenderContext* renderCtx)
 
 			if (drawEnemDmg && syncEnemDmg)
 			{
-				auto interfaceColor = ColorUtil::interfaceColor(1);
+				auto interfaceColor = Interface::interfaceColor(1);
 				DrawUtils::drawTextInWorld(&enem_dmg, placeLoc.sub(0, 1.2f, 0), 0.6f, vec3_ti(interfaceColor.r, interfaceColor.g, interfaceColor.b), vec3_ti(12, 12, 12), .1f);
 			}
 		}
 		if (renderType.selected == 0 || renderType.selected == 1)
 		{
-			auto interfacrColor = ColorUtil::interfaceColor(1);
+			auto interfacrColor = Interface::interfaceColor(1);
 			for (CrystalInfo& indivCrystal : CJTWDPlaceArr)
 			{
 				if (CJTWDPlaceArr.size() == 0 || tgtList.size() == 0)
