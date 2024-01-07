@@ -225,7 +225,7 @@ void Hooks::Init() {
 
 		void* levelRendererBobView = reinterpret_cast<void*>(FindSignature("48 8B C4 48 89 58 20 57 48 ?? ?? ?? ?? 00 00 0F ?? ?? ?? 0F ?? ?? ?? ?? 0F ?? ?? ?? ?? 0F ?? ?? ??"));
 
-		static auto bobViewHookF = [](__int64 _this, glm::mat4& matrix, float lerpT) {
+/*		static auto bobViewHookF = [](__int64 _this, glm::mat4& matrix, float lerpT) {
 			static auto origFunc = g_Hooks.lambdaHooks.at(lambda_counter)->GetFastcall<void, __int64, glm::mat4&, float>();
 
 			static auto testMod = moduleMgr->getModule<ViewModel>();
@@ -250,7 +250,7 @@ void Hooks::Init() {
 
 		std::shared_ptr<FuncHook> bobViewHook = std::make_shared<FuncHook>(levelRendererBobView, (decltype(&bobViewHookF.operator()))bobViewHookF);
 
-		g_Hooks.lambdaHooks.push_back(bobViewHook);
+		g_Hooks.lambdaHooks.push_back(bobViewHook); */
 
 #undef lambda_counter
 
