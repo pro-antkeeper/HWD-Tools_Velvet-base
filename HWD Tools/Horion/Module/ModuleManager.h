@@ -135,11 +135,10 @@
 #include "Modules/Spider.h"
 #include "Modules/Compass.h"
 #include "Modules/Radar.h"
-#include "Modules/ViewModel.h"
 #include "Modules/Twerk.h"
 #include "Modules/FontChanger.h"
 #include "Modules/Coordinates.h"
-#include "Modules/PingDisplay.h"
+//#include "Modules/PingDisplay.h"
 //#include "Modules/HighwayTools.h"
 
 #ifdef _DEBUG
