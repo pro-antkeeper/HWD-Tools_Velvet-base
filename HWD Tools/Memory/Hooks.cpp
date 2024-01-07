@@ -838,7 +838,8 @@ __int64 Hooks::RenderText(__int64 a1, C_MinecraftUIRenderContext* renderCtx) {
 							}
 						}
 						c = 0;
-						modContainerList.clear();					}
+						modContainerList.clear();
+					}
 				}
 			}
 		}
