@@ -46,7 +46,7 @@ void ModuleManager::initModules() {
 		//moduleList.push_back(std::shared_ptr<IModule>(new HighwayTools()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Excavator()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoLog()));
-		moduleList.push_back(std::shared_ptr<IModule>(new PingDisplay()));
+		//moduleList.push_back(std::shared_ptr<IModule>(new PingDisplay()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Interface()));
 
 		moduleList.push_back(std::shared_ptr<IModule>(new AntiDesync()));
@@ -64,8 +64,8 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new FastXPtwo()));
 		moduleList.push_back(std::shared_ptr<IModule>(new BPGRewrite()));
 		moduleList.push_back(std::shared_ptr<IModule>(new FastXP()));
-		moduleList.push_back(std::shared_ptr<IModule>(new CrystalPlace()));
-		moduleList.push_back(std::shared_ptr<IModule>(new CrystalBreak()));
+		//moduleList.push_back(std::shared_ptr<IModule>(new CrystalPlace()));
+		//moduleList.push_back(std::shared_ptr<IModule>(new CrystalBreak()));
 		moduleList.push_back(std::shared_ptr<IModule>(new NoClip()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Surround()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoTrap()));
@@ -142,7 +142,6 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new	Spider()));
 		moduleList.push_back(std::shared_ptr<IModule>(new	Compass()));
 		moduleList.push_back(std::shared_ptr<IModule>(new	Radar()));
-		moduleList.push_back(std::shared_ptr<IModule>(new ViewModel()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Twerk()));
 		moduleList.push_back(std::shared_ptr<IModule>(new FontChanger()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Coordinates()));
