@@ -1,18 +1,16 @@
 #include "CrystalUtilsJTWD.h"
-#include "../../Utils/Target.h"
+#include "../../../Utils/Target.h"
 #include <tuple>
 
-#include "../../Module/ModuleManager.h"
+#include "../ModuleManager.h"
 
-using namespace std;
-
-CrystalBreak::CrystalBreak() : IModule(0, Category::COMBAT, "Automatically breaks end crystals.")
-{
-	registerIntSetting("BreakDelay", &this->breakdelay, this->breakdelay, 0, 8);
-	registerBoolSetting("Predict", &this->retardBreak, this->retardBreak);
-	registerBoolSetting("AntiWeakness", &this->antiWeakness, this->antiWeakness);
+CrystalBreak::CrystalBreak() : IModule(0, Category::COMBAT, "comes as a set with CrystalPlaceJTWD ;)") {
+	registerBoolSetting("AntiWeak(shitty)", &this->antiWeakness, this->antiWeakness);
+	registerIntSetting("Delay (ticks)", &this->breakdelay, this->breakdelay, 0, 8);
+	registerBoolSetting("retard break", &this->retardBreak, this->retardBreak);
 
 	registerFloatSetting("Break Range", &this->breakRange, this->breakRange, 0.f, 12.f);
+
 	registerBoolSetting("Break All", &this->breakAll, this->breakAll);
 
 	registerFloatSetting("Thru Walls", &this->breakWalls, this->breakWalls, 0, 10);
@@ -22,60 +20,48 @@ CrystalBreak::CrystalBreak() : IModule(0, Category::COMBAT, "Automatically break
 	registerFloatSetting("Max Self Dmg", &this->BmaxSelfDmg, this->BmaxSelfDmg, 0.f, 20.f);
 
 	registerBoolSetting("Render", &this->renderBreaking, this->renderBreaking);
-	//registerFloatSetting("Outline-Opacity", &this->OutOpacity, 0.1f, 0.f, 1.f);
-	registerFloatSetting("Fill-Opacity", &this->Opacity, 0.1f, 0.f, 1.f);
 
 	rotateBreak = SettingEnum(this)
-		.addEntry(EnumEntry("None", 0))
-		.addEntry(EnumEntry("Normal", 1))
-		.addEntry(EnumEntry("Silent", 2));
+				 .addEntry(EnumEntry("none", 0))
+				 .addEntry(EnumEntry("normal", 1))
+				 .addEntry(EnumEntry("silent", 2));
 	registerEnumSetting("Rotations", &this->rotateBreak, 0);
-	//shouldHide = true; //why is this everywhere ...
+
+	//registerBoolSetting("Config Helper", &this->configHelper, this->configHelper);
 }
 
-CrystalBreak::~CrystalBreak() {};
+CrystalBreak::~CrystalBreak(){};
 
-const char* CrystalBreak::getModuleName()
-{
-	return ("CrystalAura");
+const char* CrystalBreak::getModuleName() {
+	return ("CrystalBreakJTWD");
 }
 
 static std::vector<C_Entity*> crystalList;
-bool crystalFinder(C_Entity* curEnt, bool isRegularEntity)
-{
-	if (curEnt == nullptr)
-		return false;
-	if (curEnt == g_Data.getLocalPlayer())
-		return false; // Skip Local player
-	if (!curEnt->isAlive())
-		return false;
-	if (!g_Data.getLocalPlayer()->isAlive())
-		return false;
-	if (curEnt->getEntityTypeId() != 71)
-		return false; // not endcrystal
-	if (curEnt->width <= 0.01f || curEnt->height <= 0.01f)
-		return false; // Don't hit this pesky antibot on 2b2e.org
+bool crystalFinder(C_Entity* curEnt, bool isRegularEntity) {
+	if (curEnt == nullptr) return false;
+	if (curEnt == g_Data.getLocalPlayer()) return false;  // Skip Local player
+	if (!curEnt->isAlive()) return false;
+	if (!g_Data.getLocalPlayer()->isAlive()) return false;
+	if (curEnt->getEntityTypeId() != 71) return false;                   // not endcrystal
+	if (curEnt->width <= 0.01f || curEnt->height <= 0.01f) return false;  // Don't hit this pesky antibot on 2b2e.org
 
 	float dist = (curEnt->eyePos0).dist(g_Data.getLocalPlayer()->getHumanPos());
-	if (dist <= moduleMgr->getModule<CrystalBreak>()->breakRange)
-	{
+	if (dist <= moduleMgr->getModule<CrystalBreak>()->breakRange) {
 		crystalList.push_back(curEnt);
 		return true;
 	}
 	return false;
 }
 
-bool cmpCC(C_Entity* E1, C_Entity* E2)
-{
+
+bool cmpCC(C_Entity* E1, C_Entity* E2) {
 	return g_Data.getLocalPlayer()->getHumanPos().dist(E1->eyePos0) < g_Data.getLocalPlayer()->getHumanPos().dist(E2->eyePos0);
 }
 
-void CrystalBreak::sortCrystals()
-{
+void CrystalBreak::sortCrystals() {
 	std::vector<C_Entity*> rtn;
-
-	if (g_Data.getLocalPlayer()->getHealth() <= breakHealth)
-	{
+	
+	if (g_Data.getLocalPlayer()->getHealth() <= breakHealth) {
 		crystalList.clear();
 		return;
 	}
@@ -83,38 +69,32 @@ void CrystalBreak::sortCrystals()
 	using getSeenPercent_t = float(__fastcall*)(C_BlockSource*, vec3_t const&, AABB const&);
 	static getSeenPercent_t getSeenPercent = reinterpret_cast<getSeenPercent_t>(FindSignature("40 53 55 41 56 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4"));
 
-	for (C_Entity* aCrystal : crystalList)
-	{
-		if (aCrystal->getEntityTypeId() == 71)
-		{
-			for (CrystalInfo& c : moduleMgr->getModule<CrystalPlace>()->CJTWDPlaceArr)
-			{
+	for (C_Entity* aCrystal : crystalList) {
+		if (aCrystal->getEntityTypeId() == 71) {
+			for (CrystalInfo& c : moduleMgr->getModule<CrystalPlace>()->CJTWDPlaceArr) {
 				vec3_t cPos = aCrystal->eyePos0.floor();
 
-				if (!breakAll)
-				{ // ensure that the crystals are the ones placed by you
+				if (!breakAll) {  // ensure that the crystals are the ones placed by you
 					vec3_t place = c.CPlacements.toPlace.floor();
 
-					if (cPos == place)
-					{ // crystal is on *that* locaation
+					if (cPos == place) {  // crystal is on *that* locaation
 						rtn.push_back(aCrystal);
 					}
 				}
 
 				// place location obstructed; do wall range
-				if (getSeenPercent(g_Data.getLocalPlayer()->region, cPos, g_Data.getLocalPlayer()->aabb) == 0.f && breakWalls != 10)
-				{
-					if (breakWalls == 0) // walls completely disabled, might as well save on processing time by not going through
+				if (getSeenPercent(g_Data.getLocalPlayer()->region, cPos, g_Data.getLocalPlayer()->aabb) == 0.f && breakWalls != 10) {
+					if (breakWalls == 0)  // walls completely disabled, might as well save on processing time by not going through
 						continue;
 
 					lineResults lineRes = countBlksAlongLine(g_Data.getLocalPlayer()->eyePos0, cPos.add(0.5f));
 					float amtOfShitInBtwn = lineRes.blockCount;
 
-					if (amtOfShitInBtwn >= breakWalls) // theres too much shit in between
+					if (amtOfShitInBtwn >= breakWalls)  // theres too much shit in between
 						continue;
 
 					vec3_t lastKnownSolid = lineRes.lastSolidBlock;
-					if (lastKnownSolid.dist(cPos) > postBWalls) // shit is too far away from wall
+					if (lastKnownSolid.dist(cPos) > postBWalls)  // shit is too far away from wall
 						continue;
 
 					rtn.push_back(aCrystal);
@@ -133,23 +113,27 @@ void CrystalBreak::sortCrystals()
 	return;
 }
 
-void CrystalBreak::onEnable()
-{
-	if (g_Data.getLocalPlayer() == nullptr)
-		return;
+void CrystalBreak::onEnable() {
+	if (g_Data.getLocalPlayer() == nullptr) return;
 
 	crystalList.clear();
 
+	auto CPlace = moduleMgr->getModule<CrystalPlace>();
+	if (!CPlace->isEnabled())
+		CPlace->setEnabled(true);
+
 	return;
 }
 
-void CrystalBreak::onDisable()
-{
+void CrystalBreak::onDisable() {
+	auto CPlace = moduleMgr->getModule<CrystalPlace>();
+	if (CPlace->isEnabled())
+		CPlace->setEnabled(false);
+
 	return;
 }
 
-void CrystalBreak::findAFuckingWeapon()
-{
+void CrystalBreak::findAFuckingWeapon() {
 
 	C_PlayerInventoryProxy* supplies = g_Data.getLocalPlayer()->getSupplies();
 	C_Inventory* inv = supplies->inventory;
@@ -158,14 +142,11 @@ void CrystalBreak::findAFuckingWeapon()
 
 	float damage = 0;
 	int slot = supplies->selectedHotbarSlot;
-	for (int n = 0; n < 9; n++)
-	{
+	for (int n = 0; n < 9; n++) {
 		C_ItemStack* stack = inv->getItemStack(n);
-		if (stack->item != nullptr)
-		{
+		if (stack->item != nullptr) {
 			float currentDamage = stack->getAttackingDamageWithEnchants();
-			if (currentDamage > damage)
-			{
+			if (currentDamage > damage) {
 				damage = currentDamage;
 				slot = n;
 			}
@@ -174,30 +155,9 @@ void CrystalBreak::findAFuckingWeapon()
 	supplies->selectedHotbarSlot = slot;
 }
 
-void CrystalBreak::onTick(C_GameMode* gm)
-{
+void CrystalBreak::onTick(C_GameMode* gm) {
 	if (g_Data.getLocalPlayer() == nullptr || !g_Data.canUseMoveKeys() || retardBreak)
 		return;
-
-	auto antiDesync = moduleMgr->getModule<AntiDesync>();
-	if (antiDesync->mode.selected == 0)
-	{
-		auto player = g_Data.getLocalPlayer();
-		if (player->getSelectedItemId() == 259 && g_Data.isRightClickDown())
-			return;
-		if (player->getSelectedItemId() == 300 && g_Data.isRightClickDown())
-			return;
-	}
-
-	auto CPlace = moduleMgr->getModule<CrystalPlace>();
-	if (CPlace->ReturnOnEat)
-	{
-		auto player = g_Data.getLocalPlayer();
-		if (player->getSelectedItemId() == 259 && g_Data.isRightClickDown())
-			return;
-		if (player->getSelectedItemId() == 300 && g_Data.isRightClickDown())
-			return;
-	}
 
 	crystalList.clear();
 
@@ -205,54 +165,43 @@ void CrystalBreak::onTick(C_GameMode* gm)
 
 	sortCrystals();
 	breakArrEmpty = crystalList.empty();
-	if (breakArrEmpty)
-		return;
+	if (breakArrEmpty) return;
 
 	Mdel++;
 
-	if (g_Data.getLocalPlayer()->getSelectedItemId() == 300 || g_Data.getLocalPlayer()->getSelectedItemId() == 316 || g_Data.getLocalPlayer()->getSelectedItemId() == 318 || g_Data.getLocalPlayer()->getSelectedItemId() == 319 || g_Data.getLocalPlayer()->getSelectedItemId() == 604 || g_Data.getLocalPlayer()->getSelectedItemId() == 607 || g_Data.getLocalPlayer()->getSelectedItemId() == 606)
+	if (g_Data.getLocalPlayer()->getSelectedItemId() == 300 || g_Data.getLocalPlayer()->getSelectedItemId() == 316 || g_Data.getLocalPlayer()->getSelectedItemId() == 318 || g_Data.getLocalPlayer()->getSelectedItemId() == 319 || g_Data.getLocalPlayer()->getSelectedItemId() == 604 || g_Data.getLocalPlayer()->getSelectedItemId() == 607 || g_Data.getLocalPlayer()->getSelectedItemId() == 606) 
 		return;
 
 	aSlot = g_Data.getLocalPlayer()->getSupplies()->selectedHotbarSlot;
-	if (moduleMgr->getModule<CrystalPlace>()->switchType.GetSelectedEntry().GetValue() == 3)
-	{
-		if ((g_Data.getLocalPlayer()->level->hasEntity() != 0) && GameData::isLeftClickDown()) //fix?
+	if (moduleMgr->getModule<CrystalPlace>()->switchType.GetSelectedEntry().GetValue() == 3) {
+		if ((g_Data.getLocalPlayer()->level->hasEntity() != 0) && GameData::isLeftClickDown())
 			return;
 		if (g_Data.getLocalPlayer()->getSupplies()->selectedHotbarSlot != aSlot)
 			return;
 	}
 
-	if (Mdel >= breakdelay)
-	{
-		if (antiWeakness)
-		{
+	if (Mdel >= breakdelay) {
+		if (antiWeakness) {
 			findAFuckingWeapon();
 			return;
 		}
 
-		if (breakAll)
-		{
-			for (C_Entity* EC_ent : crystalList)
-			{
-				if (EC_ent->isAlive() && EC_ent != nullptr)
-				{
+		if (breakAll) {
+			for (C_Entity* EC_ent : crystalList) {
+				if (EC_ent->isAlive() && EC_ent != nullptr) {
 
-					if (rotateBreak.GetSelectedEntry().GetValue() == 1 || rotateBreak.GetSelectedEntry().GetValue() == 2)
-					{
+					if (rotateBreak.GetSelectedEntry().GetValue() == 1 || rotateBreak.GetSelectedEntry().GetValue() == 2) {
 						rotAngleB = g_Data.getLocalPlayer()->getHumanPos().CalcAngle(EC_ent->eyePos0);
 					}
 
 					g_Data.getCGameMode()->attack(EC_ent);
 				}
 			}
-		}
-		else if (!breakAll)
-		{
-			if (crystalList[0]->isAlive() && crystalList[0] != nullptr)
-			{
+		} 
+		else if (!breakAll) {
+			if (crystalList[0]->isAlive() && crystalList[0] != nullptr) {
 
-				if (rotateBreak.GetSelectedEntry().GetValue() == 1 || rotateBreak.GetSelectedEntry().GetValue() == 2)
-				{
+				if (rotateBreak.GetSelectedEntry().GetValue() == 1 || rotateBreak.GetSelectedEntry().GetValue() == 2) {
 					rotAngleB = g_Data.getLocalPlayer()->getHumanPos().CalcAngle(crystalList[0]->eyePos0);
 				}
 
@@ -260,8 +209,7 @@ void CrystalBreak::onTick(C_GameMode* gm)
 			}
 		}
 		Mdel = 0;
-		if (antiWeakness)
-		{
+		if (antiWeakness) {
 			g_Data.getLocalPlayer()->getSupplies()->selectedHotbarSlot = oldSlot;
 		}
 	}
@@ -269,78 +217,18 @@ void CrystalBreak::onTick(C_GameMode* gm)
 	return;
 }
 
-void CrystalBreak::onPreRender(C_MinecraftUIRenderContext* renderCtx)
-{
-	if (!crystalList.empty() && renderBreaking && g_Data.isInGame() && g_Data.canUseMoveKeys() && g_Data.getLocalPlayer() != nullptr)
-	{
-		for (C_Entity* i : crystalList)
-		{
-			DrawUtils::setColor(1.f, 0.f, .2f, 0.f);
+
+void CrystalBreak::onPreRender(C_MinecraftUIRenderContext* renderCtx) {
+	if (!crystalList.empty() && renderBreaking && g_Data.isInGame() && g_Data.canUseMoveKeys() && g_Data.getLocalPlayer() != nullptr) {
+		for (C_Entity* i : crystalList) {
+			DrawUtils::setColor(1.f, 0.f, .2f, 0.8f);
 			DrawUtils::drawBox(i->eyePos0.sub(.5f, 0, .5f),
-				i->eyePos0.add(.5f, 1, .5f), .1f);
-		}
-		{
-			for (C_Entity* i : crystalList)
-			{
-				float rentimer = 1;
-				float zero = rentimer / 2;
-				auto fill = (i->eyePos0.sub(.5f, 0, .5f));
-				vec3_t block = fill.add(.5f, 1, .5f);
-				DrawUtils::setColor(1.f, 0.f, .2f, Opacity);
-				{
-					vec2_t fill1 = DrawUtils::worldToScreen(vec3_t(block).add(zero, zero, zero));
-					vec2_t fill2 = DrawUtils::worldToScreen(vec3_t(block).add(-zero, zero, zero));
-					vec2_t fill3 = DrawUtils::worldToScreen(vec3_t(block).add(-zero, zero, -zero));
-					vec2_t fill4 = DrawUtils::worldToScreen(vec3_t(block).add(zero, zero, -zero));
-					DrawUtils::drawQuad(vec2_t(fill3), vec2_t(fill4), vec2_t(fill1), vec2_t(fill2));
-				}
-				{
-
-					vec2_t fill1 = DrawUtils::worldToScreen(vec3_t(block).add(-zero, -zero, -zero));
-					vec2_t fill2 = DrawUtils::worldToScreen(vec3_t(block).add(-zero, -zero, zero));
-					vec2_t fill3 = DrawUtils::worldToScreen(vec3_t(block).add(zero, -zero, zero));
-					vec2_t fill4 = DrawUtils::worldToScreen(vec3_t(block).add(zero, -zero, -zero));
-					DrawUtils::drawQuad(vec2_t(fill3), vec2_t(fill4), vec2_t(fill1), vec2_t(fill2));
-				}
-				{
-
-					vec2_t fill1 = DrawUtils::worldToScreen(vec3_t(block).add(-zero, -zero, zero));
-					vec2_t fill2 = DrawUtils::worldToScreen(vec3_t(block).add(-zero, zero, zero));
-					vec2_t fill3 = DrawUtils::worldToScreen(vec3_t(block).add(zero, zero, zero));
-					vec2_t fill4 = DrawUtils::worldToScreen(vec3_t(block).add(zero, -zero, zero));
-					DrawUtils::drawQuad(vec2_t(fill3), vec2_t(fill4), vec2_t(fill1), vec2_t(fill2));
-				}
-				{
-
-					vec2_t fill1 = DrawUtils::worldToScreen(vec3_t(block).add(zero, zero, -zero));
-					vec2_t fill2 = DrawUtils::worldToScreen(vec3_t(block).add(-zero, zero, -zero));
-					vec2_t fill3 = DrawUtils::worldToScreen(vec3_t(block).add(-zero, -zero, -zero));
-					vec2_t fill4 = DrawUtils::worldToScreen(vec3_t(block).add(zero, -zero, -zero));
-					DrawUtils::drawQuad(vec2_t(fill3), vec2_t(fill4), vec2_t(fill1), vec2_t(fill2));
-				}
-				{
-
-					vec2_t fill1 = DrawUtils::worldToScreen(vec3_t(block).add(zero, -zero, zero));
-					vec2_t fill2 = DrawUtils::worldToScreen(vec3_t(block).add(zero, zero, zero));
-					vec2_t fill3 = DrawUtils::worldToScreen(vec3_t(block).add(zero, zero, -zero));
-					vec2_t fill4 = DrawUtils::worldToScreen(vec3_t(block).add(zero, -zero, -zero));
-					DrawUtils::drawQuad(vec2_t(fill3), vec2_t(fill4), vec2_t(fill1), vec2_t(fill2));
-				}
-				{
-
-					vec2_t fill1 = DrawUtils::worldToScreen(vec3_t(block).add(-zero, zero, -zero));
-					vec2_t fill2 = DrawUtils::worldToScreen(vec3_t(block).add(-zero, zero, zero));
-					vec2_t fill3 = DrawUtils::worldToScreen(vec3_t(block).add(-zero, -zero, zero));
-					vec2_t fill4 = DrawUtils::worldToScreen(vec3_t(block).add(-zero, -zero, -zero));
-					DrawUtils::drawQuad(vec2_t(fill3), vec2_t(fill4), vec2_t(fill1), vec2_t(fill2));
-				}
-			}
+							   i->eyePos0.add(.5f, 1, .5f), .1f);
 		}
 	}
 }
 
-void CrystalBreak::onLevelRender()
-{
+void CrystalBreak::onLevelRender() {
 	if (g_Data.getLocalPlayer() == nullptr || !g_Data.canUseMoveKeys() || !retardBreak)
 		return;
 
@@ -350,48 +238,38 @@ void CrystalBreak::onLevelRender()
 
 	sortCrystals();
 	breakArrEmpty = crystalList.empty();
-	if (breakArrEmpty)
-		return;
+	if (breakArrEmpty) return;
 
 	if (g_Data.getLocalPlayer()->getSelectedItemId() == 300 || g_Data.getLocalPlayer()->getSelectedItemId() == 316 || g_Data.getLocalPlayer()->getSelectedItemId() == 318 || g_Data.getLocalPlayer()->getSelectedItemId() == 319 || g_Data.getLocalPlayer()->getSelectedItemId() == 604 || g_Data.getLocalPlayer()->getSelectedItemId() == 607 || g_Data.getLocalPlayer()->getSelectedItemId() == 606)
 		return;
 
 	aSlot = g_Data.getLocalPlayer()->getSupplies()->selectedHotbarSlot;
-	if (moduleMgr->getModule<CrystalPlace>()->switchType.GetSelectedEntry().GetValue() == 3)
-	{
+	if (moduleMgr->getModule<CrystalPlace>()->switchType.GetSelectedEntry().GetValue() == 3) {
 		if ((g_Data.getLocalPlayer()->level->hasEntity() != 0) && GameData::isLeftClickDown())
 			return;
 		if (g_Data.getLocalPlayer()->getSupplies()->selectedHotbarSlot != aSlot)
 			return;
 	}
 
-	if (antiWeakness)
-	{
+
+	if (antiWeakness) {
 		findAFuckingWeapon();
 		return;
 	}
 
-	if (breakAll)
-	{
-		for (C_Entity* EC_ent : crystalList)
-		{
-			if (EC_ent->isAlive() && EC_ent != nullptr)
-			{
-				if (rotateBreak.GetSelectedEntry().GetValue() == 1 || rotateBreak.GetSelectedEntry().GetValue() == 2)
-				{
+	if (breakAll) {
+		for (C_Entity* EC_ent : crystalList) {
+			if (EC_ent->isAlive() && EC_ent != nullptr) {
+				if (rotateBreak.GetSelectedEntry().GetValue() == 1 || rotateBreak.GetSelectedEntry().GetValue() == 2) {
 					rotAngleB = g_Data.getLocalPlayer()->getHumanPos().CalcAngle(EC_ent->eyePos0);
 				}
 
 				g_Data.getCGameMode()->attack(EC_ent);
 			}
 		}
-	}
-	else if (!breakAll)
-	{
-		if (crystalList[0]->isAlive() && crystalList[0] != nullptr)
-		{
-			if (rotateBreak.GetSelectedEntry().GetValue() == 1 || rotateBreak.GetSelectedEntry().GetValue() == 2)
-			{
+	} else if (!breakAll) {
+		if (crystalList[0]->isAlive() && crystalList[0] != nullptr) {
+			if (rotateBreak.GetSelectedEntry().GetValue() == 1 || rotateBreak.GetSelectedEntry().GetValue() == 2) {
 				rotAngleB = g_Data.getLocalPlayer()->getHumanPos().CalcAngle(crystalList[0]->eyePos0);
 			}
 
@@ -399,20 +277,16 @@ void CrystalBreak::onLevelRender()
 		}
 	}
 
-	if (antiWeakness)
-	{
+	if (antiWeakness) {
 		g_Data.getLocalPlayer()->getSupplies()->selectedHotbarSlot = oldSlot;
 	}
 
 	return;
 }
 
-void CrystalBreak::onSendPacket(C_Packet* packet)
-{
-	if (packet->isInstanceOf<C_MovePlayerPacket>() && g_Data.getLocalPlayer() != nullptr && rotateBreak.GetSelectedEntry().GetValue() == 2)
-	{ // silent rotations
-		if (!breakArrEmpty)
-		{
+void CrystalBreak::onSendPacket(C_Packet* packet) {
+	if (packet->isInstanceOf<C_MovePlayerPacket>() && g_Data.getLocalPlayer() != nullptr && rotateBreak.GetSelectedEntry().GetValue() == 2) {  // silent rotations
+		if (!breakArrEmpty) {
 			auto* movePacket = reinterpret_cast<C_MovePlayerPacket*>(packet);
 			vec2_t angle = rotAngleB;
 			movePacket->pitch = angle.x;
@@ -421,3 +295,4 @@ void CrystalBreak::onSendPacket(C_Packet* packet)
 		}
 	}
 }
+
