@@ -16,7 +16,6 @@
 #include "Modules/PacketMine.h"
 #include "Modules/DeathCoords.h"
 #include "Modules/PvPResources.h"
-
 #include "Modules/AutoEZ.h"		  // funny    
 #include "Modules/Arraylist.h"
 
@@ -40,10 +39,8 @@
 #include "Modules/Watermark.h"
 #include "Modules/Theme.h"
 #include "Modules/AutoHighway.h"
-#include "Modules/Interface.h"
-#include "Modules/YawLock.h" //end
+#include "Modules/YawLock.h" 
 
-#include "Modules/AntiDesync.h"
 #include "Modules/RobotHolefiller.h"
 #include "Modules/CityESP.h"
 #include "Modules/RenSurround.h"
@@ -57,14 +54,13 @@
 
 #include "Modules/FastXPtwo.h"
 #include "Modules/BPGRewrite.h"
-#include "Modules/CrystalUtilsJTWD.h"  // by merci
+#include "Modules/CrystalUtilsJTWD.h"  // in progress
 #include "Modules/NoClip.h"		  // works
 #include "Modules/surround.h"     // fixed
 #include "Modules/AutoTrap.h"	  // fixed
 #include "Modules/HoleESP.h"      // fixed
 #include "Modules/HoleFiller.h"	  // fixed
 #include "Modules//FastExp.h"
-
 #include "Modules/Aimbot.h"
 #include "Modules/AirJump.h"
 #include "Modules/AirSwim.h"
@@ -85,7 +81,7 @@
 #include "Modules/Teleport.h"
 #include "Modules/Crasher.h"
 #include "Modules/Criticals.h"
-#include "Modules/CrystalAuraGK.h"
+#include "Modules/CrystalAura.h"
 #include "Modules/Disabler.h"
 #include "Modules/Derp.h"
 #include "Modules/ESP.h"
@@ -138,7 +134,7 @@
 #include "Modules/Twerk.h"
 #include "Modules/FontChanger.h"
 #include "Modules/Coordinates.h"
-//#include "Modules/PingDisplay.h"
+#include "Modules/AntiDesync.h"
 //#include "Modules/HighwayTools.h"
 
 #ifdef _DEBUG
