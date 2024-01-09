@@ -3,7 +3,6 @@
 #include "Module/ModuleManager.h"
 #include <Windows.h>
 #include "../Utils/Logger.h"
-//#include "../Utils/ColorUtil.h"
 
 struct MaterialPtr {
 	char padding[0x138];
@@ -35,7 +34,7 @@ meshHelper_renderImm_t meshHelper_renderImm;
 
 bool hasInitializedSigs = false;
 void initializeSigs() {
-
+	
 	tess_vertex = reinterpret_cast<tess_vertex_t>(FindSignature("40 57 48 83 EC ? 0F 29 74 24 ? 0F 29 7C 24"));
 	meshHelper_renderImm = reinterpret_cast<meshHelper_renderImm_t>(FindSignature("40 53 56 57 48 81 EC ?? ?? ?? ?? 49 8B F0 48 8B DA"));
 	//mce__VertexFormat__disableHalfFloats = reinterpret_cast<mce__VertexFormat__disableHalfFloats_t>(FindSignature("40 53 48 83 EC ?? 48 8B D9 C7 81 ?? ?? ?? ?? 00 00 00 00 C6 81 ?? ?? ?? ?? 00"));
@@ -57,7 +56,7 @@ void DrawUtils::setCtx(C_MinecraftUIRenderContext* ctx, C_GuiData* gui) {
 	if (g_Data.getClientInstance()->minecraft != nullptr && reinterpret_cast<__int64>(g_Data.getClientInstance()->minecraft) < 0xFFFFFFFFFFF00000)
 		if (g_Data.getClientInstance()->minecraft->timer != nullptr)
 			ticksPerSecond = (int)*g_Data.getClientInstance()->minecraft->timer;
-	if (ticksPerSecond < 1)
+	if(ticksPerSecond < 1)
 		ticksPerSecond = 1;
 	ElapsedMicroseconds.QuadPart /= Frequency.QuadPart / ticksPerSecond;
 	lerpT = (ElapsedMicroseconds.QuadPart / 1000000.f);
@@ -102,12 +101,8 @@ void DrawUtils::setColor(float r, float g, float b, float a) {
 }
 
 C_Font* DrawUtils::getFont(Fonts font) {
-	static auto fontChangerModule = moduleMgr->getModule<FontChanger>();
 
-	if (fontChangerModule->Fonts.selected == 1)
-		return g_Data.getClientInstance()->minecraftGame->mcFont;
-	else
-		return g_Data.getClientInstance()->minecraftGame->getOldFont();
+	return g_Data.getClientInstance()->minecraftGame->mcFont;
 
 	switch (font) {
 	case Fonts::SMOOTH:
@@ -164,7 +159,7 @@ void DrawUtils::flush() {
 }
 
 void DrawUtils::drawTriangle(const vec2_t& p1, const vec2_t& p2, const vec2_t& p3) {
-
+	
 	DrawUtils::tess__begin(tesselator, 3, 3);
 
 	tess_vertex(tesselator, p1.x, p1.y, 0);
@@ -229,13 +224,8 @@ void DrawUtils::drawText(const vec2_t& pos, std::string* textStr, const MC_Color
 	renderCtx->drawText(fontPtr, posF, &text, color.arr, alpha, 0, &textMeasure, &caretMeasureData);
 }
 
-void DrawUtils::drawCenteredString(vec2_t pos, std::string* textStr, float textSize, MC_Color color, bool hasShadow)
-{
-	DrawUtils::drawText(vec2_t(pos.x - DrawUtils::getTextWidth(textStr, textSize) / 2.F, pos.y - DrawUtils::getFont(Fonts::SMOOTH)->getLineHeight() / 2.F), textStr, color, textSize, 1, Fonts::SMOOTH);
-}
-
 void DrawUtils::drawBox(const vec3_t& lower, const vec3_t& upper, float lineWidth, bool outline) {
-
+	
 	vec3_t diff;
 	diff.x = upper.x - lower.x;
 	diff.y = upper.y - lower.y;
@@ -256,7 +246,7 @@ void DrawUtils::drawBox(const vec3_t& lower, const vec3_t& upper, float lineWidt
 	for (int i = 0; i < 8; i++) {
 		vec2_t screen;
 		if (refdef->OWorldToScreen(origin, vertices[i], screen, fov, screenSize)) {
-			screenCords.emplace_back(outline ? (int)screenCords.size() : i, screen);
+			screenCords.emplace_back(outline ? (int) screenCords.size() : i, screen);
 		}
 	}
 	if (screenCords.size() < 2)
@@ -272,12 +262,12 @@ void DrawUtils::drawBox(const vec3_t& lower, const vec3_t& upper, float lineWidt
 
 				bool shouldDraw = false;
 				// X direction
-				shouldDraw |= fromOrig.y == toOrig.y && fromOrig.z == toOrig.z && fromOrig.x < toOrig.x;
+				shouldDraw |= fromOrig.y == toOrig.y && fromOrig.z == toOrig.z && fromOrig.x < toOrig.x; 
 				// Y direction
-				shouldDraw |= fromOrig.x == toOrig.x && fromOrig.z == toOrig.z && fromOrig.y < toOrig.y;
+				shouldDraw |= fromOrig.x == toOrig.x && fromOrig.z == toOrig.z && fromOrig.y < toOrig.y; 
 				// Z direction
-				shouldDraw |= fromOrig.x == toOrig.x && fromOrig.y == toOrig.y && fromOrig.z < toOrig.z;
-
+				shouldDraw |= fromOrig.x == toOrig.x && fromOrig.y == toOrig.y && fromOrig.z < toOrig.z; 
+				
 				if (shouldDraw)
 					drawLine(std::get<1>(from), std::get<1>(to), lineWidth);
 			}
@@ -316,8 +306,7 @@ void DrawUtils::drawBox(const vec3_t& lower, const vec3_t& upper, float lineWidt
 			float angle = atan2(dir.y, dir.x) - lastDirAtan2;
 			if (angle > PI) {
 				angle -= 2 * PI;
-			}
-			else if (angle <= -PI) {
+			} else if (angle <= -PI) {
 				angle += 2 * PI;
 			}
 			if (angle >= 0 && angle < smallestAngle) {
@@ -332,7 +321,7 @@ void DrawUtils::drawBox(const vec3_t& lower, const vec3_t& upper, float lineWidt
 	} while (std::get<0>(current) != std::get<0>(start) && indices.size() < 8);
 
 	// draw
-
+	
 	vec2_t lastVertex;
 	bool hasLastVertex = false;
 	for (auto& indice : indices) {
@@ -342,11 +331,57 @@ void DrawUtils::drawBox(const vec3_t& lower, const vec3_t& upper, float lineWidt
 			lastVertex = curVertex;
 			continue;
 		}
-
+		
 		drawLine(lastVertex, curVertex, lineWidth);
 		lastVertex = curVertex;
 	}
 }
+
+void DrawUtils::drawSolidBox(const vec3_t& lower, const vec3_t& upper, const MC_Color& color, float alpha) {
+	if (game3dContext == 0 || entityFlatStaticMaterial == 0)
+		return;
+
+	auto myTess = DrawUtils::get3dTessellator();
+
+	DrawUtils::tess__begin(myTess, 7, 24);
+
+	vec3_t newLower = lower.sub(origin);
+
+	vec3_t vertices[8];
+	vertices[0] = vec3_t(newLower.x, newLower.y, newLower.z);
+	vertices[1] = vec3_t(newLower.x + upper.x - lower.x, newLower.y, newLower.z);
+	vertices[2] = vec3_t(newLower.x, newLower.y + upper.y - lower.y, newLower.z);
+	vertices[3] = vec3_t(newLower.x + upper.x - lower.x, newLower.y + upper.y - lower.y, newLower.z);
+
+	vertices[4] = vec3_t(newLower.x, newLower.y, newLower.z + upper.z - lower.z);
+	vertices[5] = vec3_t(newLower.x + upper.x - lower.x, newLower.y, newLower.z + upper.z - lower.z);
+	vertices[6] = vec3_t(newLower.x, newLower.y + upper.y - lower.y, newLower.z + upper.z - lower.z);
+	vertices[7] = vec3_t(newLower.x + upper.x - lower.x, newLower.y + upper.y - lower.y, newLower.z + upper.z - lower.z);
+
+	for (int i = 0; i < 8; ++i) {
+		auto& vertex = vertices[i];
+		tess_vertex(myTess, vertex.x, vertex.y, vertex.z);
+	}
+
+	// Define faces by specifying vertex indices
+	int faces[][4] = {
+		{0, 1, 3, 2}, // bottom face
+		{4, 5, 7, 6}, // top face
+		{0, 1, 5, 4}, // front face
+		{2, 3, 7, 6}, // back face
+		{0, 2, 6, 4}, // left face
+		{1, 3, 7, 5}  // right face
+	};
+
+	for (int i = 0; i < 6; ++i) {
+		tess_vertex(myTess, faces[i][0], faces[i][1], faces[i][2]);
+		tess_vertex(myTess, faces[i][0], faces[i][2], faces[i][3]);
+	}
+
+	DrawUtils::setColor(color.r, color.g, color.b, alpha);
+	meshHelper_renderImm(game3dContext, myTess, entityFlatStaticMaterial);
+}
+
 
 void DrawUtils::drawImage(std::string FilePath, vec2_t& imagePos, vec2_t& ImageDimension, vec2_t& idk) {
 	if (texturePtr == nullptr) {
@@ -369,12 +404,12 @@ void DrawUtils::drawImage(std::string FilePath, vec2_t& imagePos, vec2_t& ImageD
 void DrawUtils::drawTextInWorld(std::string* textToSay, const vec3_t& location, float tsize, vec3_ti tColor, vec3_ti bgColor, float opacity) {
 	vec2_t textPos;
 	vec4_t rectPos;
-
+	
 	float textWidth = getTextWidth(textToSay, tsize);
 	float textHeight = DrawUtils::getFont(Fonts::SMOOTH)->getLineHeight() * tsize;
 
 	vec3_t actualLocation = location.add(0.5f);
-
+	
 	if (refdef->OWorldToScreen(origin, actualLocation, textPos, fov, screenSize)) {
 		textPos.y -= textHeight;
 		textPos.x -= textWidth / 2.f;
@@ -416,7 +451,6 @@ std::string CODMW6969(std::string STUFF, int digits) {
 void DrawUtils::drawNameTags(C_Entity* ent, float textSize, bool drawHealth, bool useUnicodeFont) {
 	vec2_t textPos;
 	vec4_t rectPos;
-	std::string gamerText = " " + std::to_string((int)ent->getHealth());
 	std::string text = ent->getNameTag()->getText();
 	text = Utils::sanitize(text);
 
@@ -427,7 +461,6 @@ void DrawUtils::drawNameTags(C_Entity* ent, float textSize, bool drawHealth, boo
 	}
 
 	float textWidth = getTextWidth(&text, textSize);
-	auto newText = text + gamerText;
 	float textHeight = DrawUtils::getFont(Fonts::SMOOTH)->getLineHeight() * textSize;
 
 	if (refdef->OWorldToScreen(origin, ent->eyePos0.add(0, 0.5f, 0), textPos, fov, screenSize)) {
@@ -472,81 +505,6 @@ void DrawUtils::drawNameTags(C_Entity* ent, float textSize, bool drawHealth, boo
 			}
 		}
 	}
-}
-
-void DrawUtils::drawSteve(vec4_t(pos))
-{
-	// line 1
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y, pos.x + 3.5f, pos.y + 3.5f), MC_Color(39, 27, 11, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 3.5f, pos.y, pos.x + 7.5f, pos.y + 3.5f), MC_Color(36, 25, 11, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 7.5f, pos.y, pos.x + 11.f, pos.y + 3.5f), MC_Color(39, 26, 13, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 11.f, pos.y, pos.x + 15.f, pos.y + 3.5f), MC_Color(33, 23, 9, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 15.f, pos.y, pos.x + 18.5f, pos.y + 3.5f), MC_Color(30, 20, 7, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 18.5f, pos.y, pos.x + 22.5f, pos.y + 3.5f), MC_Color(32, 22, 8, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 22.5f, pos.y, pos.x + 26.f, pos.y + 3.5f), MC_Color(36, 25, 11, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 26.f, pos.y, pos.x + 30.f, pos.y + 3.5f), MC_Color(35, 24, 11, 255));
-	// line 2
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y + 3.5f, pos.x + 7.5f, pos.y + 7.5f), MC_Color(35, 24, 11, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 7.5f, pos.y + 3.5f, pos.x + 11.f, pos.y + 7.5f), MC_Color(36, 25, 11, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 11.f, pos.y + 3.5f, pos.x + 15.f, pos.y + 7.5f), MC_Color(43, 30, 14, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 15.f, pos.y + 3.5f, pos.x + 18.5f, pos.y + 7.5f), MC_Color(55, 35, 15, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 18.5f, pos.y + 3.5f, pos.x + 22.5f, pos.y + 7.5f), MC_Color(53, 35, 17, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 22.5f, pos.y + 3.5f, pos.x + 26.f, pos.y + 7.5f), MC_Color(37, 25, 12, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 26.f, pos.y + 3.5f, pos.x + 30.f, pos.y + 7.5f), MC_Color(27, 18, 8, 255));
-	// line 3
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y + 7.5f, pos.x + 3.5f, pos.y + 11.f), MC_Color(36, 25, 11, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 3.5f, pos.y + 7.5f, pos.x + 7.5f, pos.y + 11.f), MC_Color(152, 114, 90, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 7.5f, pos.y + 7.5f, pos.x + 11.f, pos.y + 11.f), MC_Color(152, 114, 90, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 11.f, pos.y + 7.5f, pos.x + 15.f, pos.y + 11.f), MC_Color(158, 118, 95, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 15.f, pos.y + 7.5f, pos.x + 18.5f, pos.y + 11.f), MC_Color(165, 125, 107, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 18.5f, pos.y + 7.5f, pos.x + 22.5f, pos.y + 11.f), MC_Color(158, 116, 95, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 22.5f, pos.y + 7.5f, pos.x + 26.f, pos.y + 11.f), MC_Color(143, 98, 75, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 26.f, pos.y + 7.5f, pos.x + 30.f, pos.y + 11.f), MC_Color(43, 31, 15, 255));
-	// line 4
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y + 11.f, pos.x + 3.5f, pos.y + 15.f), MC_Color(142, 104, 85, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 3.5f, pos.y + 11.f, pos.x + 7.5f, pos.y + 15.f), MC_Color(150, 110, 91, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 7.5f, pos.y + 11.f, pos.x + 11.f, pos.y + 15.f), MC_Color(150, 110, 91, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 11.f, pos.y + 11.f, pos.x + 15.f, pos.y + 15.f), MC_Color(142, 104, 85, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 15.f, pos.y + 11.f, pos.x + 18.5f, pos.y + 15.f), MC_Color(130, 95, 77, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 18.5f, pos.y + 11.f, pos.x + 22.5f, pos.y + 15.f), MC_Color(156, 114, 95, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 22.5f, pos.y + 11.f, pos.x + 26.f, pos.y + 15.f), MC_Color(130, 88, 63, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 26.f, pos.y + 11.f, pos.x + 30.f, pos.y + 15.f), MC_Color(130, 88, 63, 255));
-	// line 5
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y + 15.f, pos.x + 3.5f, pos.y + 18.5f), MC_Color(150, 110, 91, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 3.5f, pos.y + 15.f, pos.x + 7.5f, pos.y + 18.5f), MC_Color(213, 213, 213, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 7.5f, pos.y + 15.f, pos.x + 11.f, pos.y + 18.5f), MC_Color(68, 51, 114, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 11.f, pos.y + 15.f, pos.x + 15.f, pos.y + 18.5f), MC_Color(151, 103, 86, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 15.f, pos.y + 15.f, pos.x + 18.5f, pos.y + 18.5f), MC_Color(156, 114, 95, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 18.5f, pos.y + 15.f, pos.x + 22.5f, pos.y + 18.5f), MC_Color(68, 51, 114, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 22.5f, pos.y + 15.f, pos.x + 26.f, pos.y + 18.5f), MC_Color(213, 213, 213, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 26.f, pos.y + 15.f, pos.x + 30.f, pos.y + 18.5f), MC_Color(142, 104, 85, 255));
-	// line 6
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y + 18.5f, pos.x + 3.5f, pos.y + 22.5f), MC_Color(130, 83, 58, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 3.5f, pos.y + 18.5f, pos.x + 7.5f, pos.y + 22.5f), MC_Color(149, 103, 82, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 7.5f, pos.y + 18.5f, pos.x + 11.f, pos.y + 22.5f), MC_Color(153, 103, 95, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 11.f, pos.y + 18.5f, pos.x + 15.f, pos.y + 22.5f), MC_Color(88, 53, 40, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 15.f, pos.y + 18.5f, pos.x + 18.5f, pos.y + 22.5f), MC_Color(88, 53, 40, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 18.5f, pos.y + 18.5f, pos.x + 22.5f, pos.y + 22.5f), MC_Color(159, 113, 90, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 22.5f, pos.y + 18.5f, pos.x + 26.f, pos.y + 22.5f), MC_Color(135, 88, 59, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 26.f, pos.y + 18.5f, pos.x + 30.f, pos.y + 22.5f), MC_Color(107, 69, 43, 255));
-	// line 7
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y + 22.5f, pos.x + 3.5f, pos.y + 26.f), MC_Color(120, 78, 56, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 3.5f, pos.y + 22.5f, pos.x + 7.5f, pos.y + 26.f), MC_Color(125, 79, 53, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 7.5f, pos.y + 22.5f, pos.x + 11.f, pos.y + 26.f), MC_Color(99, 55, 44, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 11.f, pos.y + 22.5f, pos.x + 15.f, pos.y + 26.f), MC_Color(99, 55, 44, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 15.f, pos.y + 22.5f, pos.x + 18.5f, pos.y + 26.f), MC_Color(99, 55, 44, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 18.5f, pos.y + 22.5f, pos.x + 22.5f, pos.y + 26.f), MC_Color(99, 55, 44, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 22.5f, pos.y + 22.5f, pos.x + 26.f, pos.y + 26.f), MC_Color(119, 78, 52, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 26.f, pos.y + 22.5f, pos.x + 30.f, pos.y + 26.f), MC_Color(108, 69, 48, 255));
-	// line 8
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y + 26.f, pos.x + 3.5f, pos.y + 30.5f), MC_Color(93, 58, 37, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 3.5f, pos.y + 26.f, pos.x + 7.5f, pos.y + 30.5f), MC_Color(91, 56, 35, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 7.5f, pos.y + 26.f, pos.x + 11.f, pos.y + 30.5f), MC_Color(108, 69, 48, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 11.f, pos.y + 26.f, pos.x + 15.f, pos.y + 30.5f), MC_Color(108, 69, 48, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 15.f, pos.y + 26.f, pos.x + 18.5f, pos.y + 30.5f), MC_Color(102, 65, 43, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 18.5f, pos.y + 26.f, pos.x + 22.5f, pos.y + 30.5f), MC_Color(109, 71, 49, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 22.5f, pos.y + 26.f, pos.x + 26.f, pos.y + 30.5f), MC_Color(109, 71, 49, 255));
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 26.f, pos.y + 26.f, pos.x + 30.f, pos.y + 30.5f), MC_Color(102, 65, 43, 255));
 }
 
 void DrawUtils::drawEntityBox(C_Entity* ent, float lineWidth) {
@@ -603,12 +561,12 @@ void DrawUtils::drawItem(C_ItemStack* item, const vec2_t& itemPos, float opacity
 }
 
 vec2_t DrawUtils::worldToScreen(const vec3_t& world) {
-	vec2_t ret{ -1, -1 };
+	vec2_t ret{-1, -1};
 	refdef->OWorldToScreen(origin, world, ret, fov, screenSize);
 	return ret;
 }
 void DrawUtils::drawLine3d(const vec3_t& start, const vec3_t& end) {
-	if (game3dContext == 0 || entityFlatStaticMaterial == 0)
+	if(game3dContext == 0 || entityFlatStaticMaterial == 0)
 		return;
 
 	auto myTess = DrawUtils::get3dTessellator();
@@ -649,10 +607,10 @@ void DrawUtils::drawBox3d(const vec3_t& lower, const vec3_t& upper) {
 	vertices[6] = vec3_t(newLower.x, newLower.y + diff.y, newLower.z + diff.z);
 	vertices[7] = vec3_t(newLower.x + diff.x, newLower.y + diff.y, newLower.z + diff.z);
 
-#define line(m, n) tess_vertex(myTess, m.x, m.y, m.z); \
+	#define line(m, n) tess_vertex(myTess, m.x, m.y, m.z); \
 		tess_vertex(myTess, n.x, n.y, n.z);
-
-#define li(m, n) line(vertices[m], vertices[n]);
+	
+	#define li(m, n) line(vertices[m], vertices[n]);
 
 	li(0, 1);
 	li(1, 3);
@@ -669,101 +627,15 @@ void DrawUtils::drawBox3d(const vec3_t& lower, const vec3_t& upper) {
 	li(2, 6);
 	li(3, 7);
 
-#undef li
-#undef line
-
+	#undef li
+	#undef line
+	
 	meshHelper_renderImm(game3dContext, myTess, entityFlatStaticMaterial);
 }
 void DrawUtils::fillRectangle(const vec4_t& pos, const MC_Color& col, float alpha) {
 	DrawUtils::setColor(col.r, col.g, col.b, alpha);
-	DrawUtils::drawQuad({ pos.x, pos.w }, { pos.z, pos.w }, { pos.z, pos.y }, { pos.x, pos.y });
+	DrawUtils::drawQuad({pos.x, pos.w}, {pos.z, pos.w}, {pos.z, pos.y}, {pos.x, pos.y});
 }
-void DrawUtils::fillRectangleA(vec4_t pos, MC_Color col)
-{
-	DrawUtils::setColor(col.r, col.g, col.b, col.a);
-	DrawUtils::drawQuad({ pos.x, pos.w }, { pos.z, pos.w }, { pos.z, pos.y }, { pos.x, pos.y });
-}
-void DrawUtils::drawRoundRectangle(vec4_t pos, const MC_Color col, bool rounder = false)
-{
-	switch (rounder)
-	{
-	case 0:
-		DrawUtils::fillRectangleA(vec4_t(pos.x + 1, pos.y - 2, pos.z - 1, pos.y - 1), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x + 1, pos.w + 1, pos.z - 1, pos.w + 2), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x - 1, pos.y, pos.x, pos.w), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.z, pos.y, pos.z + 1, pos.w), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.z - 1, pos.w, pos.z, pos.w + 1), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x, pos.w, pos.x + 1, pos.w + 1), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.z - 1, pos.y - 1, pos.z, pos.y), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y - 1, pos.x + 1, pos.y), col);
-		break;
-	case 1:
-		DrawUtils::fillRectangleA(vec4_t(pos.x - 1, pos.y, pos.x, pos.w), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.z, pos.y, pos.z + 1, pos.w), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x + 2, pos.w + 2, pos.z - 2, pos.w + 3), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x + 2, pos.y - 3, pos.z - 2, pos.y - 2), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y - 2, pos.x + 1, pos.y - 1), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x + 1, pos.y - 2.5, pos.x + 2, pos.y - 1.5), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x - .5, pos.y - 1, pos.x + .5, pos.y), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.z - 1, pos.y - 2, pos.z, pos.y - 1), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.z - 2, pos.y - 2.5, pos.z - 1, pos.y - 1.5), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.z - .5, pos.y - 1, pos.z + .5, pos.y), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x - .5, pos.w, pos.x + .5, pos.w + 1), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x, pos.w + 1, pos.x + 1, pos.w + 2), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x + 1, pos.w + 1.5f, pos.x + 2, pos.w + 2.5), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.z - .5, pos.w, pos.z + .5, pos.w + 1), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.z - 1, pos.w + 1, pos.z, pos.w + 2), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.z - 2, pos.w + 1.5f, pos.z - 1, pos.w + 2.5), col);
-		break;
-	}
-}
-
-void DrawUtils::fillRoundRectangle(vec4_t pos, const MC_Color col, bool rounder = false)
-{
-	switch (rounder)
-	{
-	case 0:
-		DrawUtils::setColor(col.r, col.g, col.b, col.a);
-		DrawUtils::drawQuad({ pos.x, pos.w }, { pos.z, pos.w }, { pos.z, pos.y }, { pos.x, pos.y });
-		DrawUtils::fillRectangleA(vec4_t(pos.x + 1, pos.y - 1, pos.z - 1, pos.y), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x + 1, pos.w, pos.z - 1, pos.w + 1), col);
-		break;
-	case 1:
-		DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y, pos.z, pos.w), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x + .5, pos.w, pos.z - .5, pos.w + 1), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x + 1, pos.w + 1, pos.z - 1, pos.w + 1.5), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x + 2, pos.w + 1.5, pos.z - 2, pos.w + 2), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x + .5, pos.y - 1, pos.z - .5, pos.y), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x + 1, pos.y - 1.5f, pos.z - 1, pos.y - 1), col);
-		DrawUtils::fillRectangleA(vec4_t(pos.x + 2, pos.y - 2, pos.z - 2, pos.y - 1.5), col);
-		break;
-	}
-}
-
-void DrawUtils::drawRoundRectangle2(vec4_t pos, const MC_Color col)
-{
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y - 2, pos.z, pos.y - 1), col);
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.w + 1, pos.z, pos.w + 2), col);
-
-	DrawUtils::fillRectangleA(vec4_t(pos.x - 1, pos.y - 1, pos.x, pos.w + 1), col);
-	DrawUtils::fillRectangleA(vec4_t(pos.z, pos.y - 1, pos.z + 1, pos.w + 1), col);
-
-	DrawUtils::fillRectangleA(vec4_t(pos.z - 1, pos.w, pos.z, pos.w + 1), col);
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.w, pos.x + 1, pos.w + 1), col);
-	DrawUtils::fillRectangleA(vec4_t(pos.z - 1, pos.y - 1, pos.z, pos.y), col);
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y - 1, pos.x + 1, pos.y), col);
-}
-
-void DrawUtils::drawCircle(vec4_t(pos), MC_Color col)
-{
-	DrawUtils::setColor(col.r, col.g, col.b, col.a);
-	DrawUtils::fillRectangleA(vec4_t(pos.x, pos.y, pos.z, pos.w), col);
-	DrawUtils::fillRectangleA(vec4_t(pos.x + .5, pos.w, pos.z - .5, pos.w + .5), col);
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 1, pos.w + .5, pos.z - 1, pos.w + 1), col);
-	DrawUtils::fillRectangleA(vec4_t(pos.x + .5, pos.y - .5, pos.z - .5, pos.y), col);
-	DrawUtils::fillRectangleA(vec4_t(pos.x + 1, pos.y - 1.f, pos.z - 1, pos.y - .5), col);
-}
-
 inline void DrawUtils::tess__begin(Tessellator* tess, int vertexFormat, int numVerticesReserved) {
 	__int64 tesselator = reinterpret_cast<__int64>(tess);
 
@@ -776,7 +648,7 @@ void DrawUtils::setGameRenderContext(__int64 ctx) {
 	if (g_Data.getClientInstance()->levelRenderer != nullptr)
 		origin = g_Data.getClientInstance()->levelRenderer->getOrigin();
 
-	if (ctx) {
+	if(ctx){
 		LARGE_INTEGER EndingTime, ElapsedMicroseconds;
 		LARGE_INTEGER Frequency;
 		QueryPerformanceFrequency(&Frequency);
@@ -785,9 +657,9 @@ void DrawUtils::setGameRenderContext(__int64 ctx) {
 
 		ElapsedMicroseconds.QuadPart *= 1000000;
 		int ticksPerSecond = 20;
-		if (g_Data.getClientInstance()->minecraft)
+		if(g_Data.getClientInstance()->minecraft)
 			ticksPerSecond = (int)*g_Data.getClientInstance()->minecraft->timer;
-		if (ticksPerSecond < 1)
+		if(ticksPerSecond < 1)
 			ticksPerSecond = 1;
 		ElapsedMicroseconds.QuadPart /= Frequency.QuadPart / ticksPerSecond;
 		lerpT = (ElapsedMicroseconds.QuadPart / 1000000.f);
@@ -804,7 +676,7 @@ vec3_t DrawUtils::getOrigin() {
 	return origin;
 }
 void DrawUtils::drawLinestrip3d(const std::vector<vec3_t>& points) {
-	if (game3dContext == 0 || entityFlatStaticMaterial == 0)
+	if(game3dContext == 0 || entityFlatStaticMaterial == 0)
 		return;
 
 	auto myTess = DrawUtils::get3dTessellator();
@@ -819,11 +691,11 @@ void DrawUtils::drawLinestrip3d(const std::vector<vec3_t>& points) {
 	 * 5: line strip (7)
 	 */
 
-	for (const auto& p : points) {
+	for(const auto& p : points){
 		auto pD = p.sub(origin);
 		tess_vertex(myTess, pD.x, pD.y, pD.z);
 	}
-
+	
 
 	meshHelper_renderImm(game3dContext, myTess, entityFlatStaticMaterial);
 }
