@@ -22,9 +22,7 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new PacketMine()));
 		moduleList.push_back(std::shared_ptr<IModule>(new DeathCoords()));  
 		moduleList.push_back(std::shared_ptr<IModule>(new pvpResources()));
-
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoEZ()));
-
 		moduleList.push_back(std::shared_ptr<IModule>(new HudModule()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Scaffold()));
 		moduleList.push_back(std::shared_ptr<IModule>(new ClickGuiMod()));
@@ -39,6 +37,7 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new Placer()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Waypoints()));
 		moduleList.push_back(std::shared_ptr<IModule>(new ArrayList()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AntiDesync()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Watermark()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Theme()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoHighway()));
@@ -46,10 +45,7 @@ void ModuleManager::initModules() {
 		//moduleList.push_back(std::shared_ptr<IModule>(new HighwayTools()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Excavator()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoLog()));
-		//moduleList.push_back(std::shared_ptr<IModule>(new PingDisplay()));
-		moduleList.push_back(std::shared_ptr<IModule>(new Interface()));
 
-		moduleList.push_back(std::shared_ptr<IModule>(new AntiDesync()));
 		moduleList.push_back(std::shared_ptr<IModule>(new RobotHolefiller()));
 		moduleList.push_back(std::shared_ptr<IModule>(new CityESP()));
 		moduleList.push_back(std::shared_ptr<IModule>(new RenSurround()));
@@ -60,12 +56,11 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new BowSpam()));
 		moduleList.push_back(std::shared_ptr<IModule>(new LiquidMove()));
 		moduleList.push_back(std::shared_ptr<IModule>(new ReverseStep()));
-
 		moduleList.push_back(std::shared_ptr<IModule>(new FastXPtwo()));
 		moduleList.push_back(std::shared_ptr<IModule>(new BPGRewrite()));
 		moduleList.push_back(std::shared_ptr<IModule>(new FastXP()));
-		//moduleList.push_back(std::shared_ptr<IModule>(new CrystalPlace()));
-		//moduleList.push_back(std::shared_ptr<IModule>(new CrystalBreak()));
+		moduleList.push_back(std::shared_ptr<IModule>(new CrystalPlace()));
+		moduleList.push_back(std::shared_ptr<IModule>(new CrystalBreak()));
 		moduleList.push_back(std::shared_ptr<IModule>(new NoClip()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Surround()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoTrap()));
@@ -126,7 +121,7 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new AntiBot()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Derp()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Crasher()));
-		moduleList.push_back(std::shared_ptr<IModule>(new CrystalAuraGK()));
+		moduleList.push_back(std::shared_ptr<IModule>(new CrystalAura()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Disabler()));
 		moduleList.push_back(std::shared_ptr<IModule>(new NightMode()));
 		moduleList.push_back(std::shared_ptr<IModule>(new NoSwing()));
