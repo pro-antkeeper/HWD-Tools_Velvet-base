@@ -73,8 +73,6 @@ void Hooks::Init() {
 
 				g_Hooks.Mob__isImmobileHook = std::make_unique<FuncHook>(localPlayerVtable[91], Hooks::Mob__isImmobile);
 
-				g_Hooks.Actor_isInWaterHook = std::make_unique<FuncHook>(localPlayerVtable[71], Hooks::Actor_isInWater);
-
 				g_Hooks.Player_tickWorldHook = std::make_unique<FuncHook>(localPlayerVtable[364], Hooks::Player_tickWorld);
 
 				//g_Hooks.Actor__isInvisibleHook = std::make_unique<FuncHook>(localPlayerVtable[59], Hooks::Actor__isInvisible);
@@ -184,9 +182,6 @@ void Hooks::Init() {
 
 		void* clickHook = reinterpret_cast<void*>(FindSignature("48 8B C4 48 89 58 ? 48 89 68 ? 48 89 70 ? 57 41 54 41 55 41 56 41 57 48 83 EC ? 44 0F B7 BC 24 ? ? ? ? 48 8B D9"));
 		g_Hooks.ClickFuncHook = std::make_unique<FuncHook>(clickHook, Hooks::ClickFunc);
-
-		void* chestScreenControllerTick = reinterpret_cast<void*>(FindSignature("48 89 5C 24 ? 57 48 83 EC ? 48 8B F9 E8 ? ? ? ? 48 8B 17"));
-		g_Hooks.ChestScreenController_tickHook = std::make_unique<FuncHook>(chestScreenControllerTick, Hooks::ChestScreenController_tick);
 
 		void* autoComplete = reinterpret_cast<void*>(FindSignature("48 89 5C 24 ? 55 56 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 44 24 ? 41 8B D9"));
 		g_Hooks.PleaseAutoCompleteHook = std::make_unique<FuncHook>(autoComplete, Hooks::PleaseAutoComplete);
@@ -1367,15 +1362,6 @@ __int64 Hooks::MoveInputHandler_tick(C_MoveInputHandler* a1, C_Entity* a2) {
 	return 0;
 }
 
-__int64 Hooks::ChestScreenController_tick(C_ChestScreenController* a1) {
-	static auto oFunc = g_Hooks.ChestScreenController_tickHook->GetFastcall<__int64, C_ChestScreenController*>();
-
-	static auto chestStealerMod = moduleMgr->getModule<ChestStealer>();
-	if (chestStealerMod->isEnabled()) chestStealerMod->chestScreenController_tick(a1);
-
-	return oFunc(a1);
-}
-
 float Hooks::GetGamma(uintptr_t* a1) {
 	static auto fullbright = moduleMgr->getModule<FullBright>();
 	static auto xrayMod = moduleMgr->getModule<Xray>();
@@ -1431,19 +1417,6 @@ float Hooks::GetGamma(uintptr_t* a1) {
 
 	static auto ofunc = g_Hooks.GetGammaHook->GetFastcall<float, uintptr_t*>();
 	return ofunc(a1);
-}
-
-bool Hooks::Actor_isInWater(C_Entity* _this) {
-	static auto oFunc = g_Hooks.Actor_isInWaterHook->GetFastcall<bool, C_Entity*>();
-
-	if (g_Data.getLocalPlayer() != _this)
-		return oFunc(_this);
-
-	static auto airSwimModule = moduleMgr->getModule<AirSwim>();
-	if (airSwimModule->isEnabled())
-		return true;
-
-	return oFunc(_this);
 }
 
 void Hooks::JumpPower(C_Entity* a1, float a2) {
@@ -1834,7 +1807,6 @@ void Hooks::Actor__setRot(C_Entity* _this, vec2_t& angle) {
 	auto jtwdCAMod = moduleMgr->getModule<CrystalPlace>();
 	auto jtwdBRMod = moduleMgr->getModule<CrystalBreak>();
 	auto surrMod = moduleMgr->getModule<Surround>();
-	auto aaMod = moduleMgr->getModule<Derp>();
 	auto rensurrMod = moduleMgr->getModule<RenSurround>();
 	auto hfMod = moduleMgr->getModule<HoleFiller>();
 	auto atMod = moduleMgr->getModule<AutoTrap>();
