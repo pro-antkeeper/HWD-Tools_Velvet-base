@@ -223,9 +223,9 @@ void Hooks::Init() {
 		static constexpr auto counterStart = __COUNTER__ + 1;
 #define lambda_counter (__COUNTER__ - counterStart)
 
-		void* levelRendererBobView = reinterpret_cast<void*>(FindSignature("48 8B C4 48 89 58 20 57 48 ?? ?? ?? ?? 00 00 0F ?? ?? ?? 0F ?? ?? ?? ?? 0F ?? ?? ?? ?? 0F ?? ?? ??"));
+		/*void* levelRendererBobView = reinterpret_cast<void*>(FindSignature("48 8B C4 48 89 58 20 57 48 ?? ?? ?? ?? 00 00 0F ?? ?? ?? 0F ?? ?? ?? ?? 0F ?? ?? ?? ?? 0F ?? ?? ??"));
 
-/*		static auto bobViewHookF = [](__int64 _this, glm::mat4& matrix, float lerpT) {
+		static auto bobViewHookF = [](__int64 _this, glm::mat4& matrix, float lerpT) {
 			static auto origFunc = g_Hooks.lambdaHooks.at(lambda_counter)->GetFastcall<void, __int64, glm::mat4&, float>();
 
 			static auto testMod = moduleMgr->getModule<ViewModel>();
