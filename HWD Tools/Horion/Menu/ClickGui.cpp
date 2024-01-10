@@ -42,7 +42,7 @@ static const MC_Color whiteColor = MC_Color(1.f, 1.f, 1.f);
 static const MC_Color selectedModuleColor = MC_Color(12.f, 62.f, 8.f);
 static const MC_Color selectedSettingColor1 = MC_Color(12.f, 62.f, 8.f);
 static const MC_Color selectedSettingColor2 = MC_Color(12.f, 62.f, 8.f);
-static const MC_Color moduleColor = MC_Color(0.f, 0.f, 0.f);
+static const MC_Color moduleColor = MC_Color(0.f, 0.f, 0.f); 
 static const MC_Color lmao = MC_Color(51, 51, 51);
 static const MC_Color brightModuleBlendColor = MC_Color(0, 145, 0); //green'd
 static const MC_Color SettingColor1 = MC_Color(35, 85, 35);  // not enabled enums //green'd
@@ -274,7 +274,7 @@ void ClickGui::renderCategory(Category category) {
 			// Text
 			if (allowRender)
 				//DrawUtils::fillRectangle(rectPos, mod->isEnabled() ? MC_Color(240, 169, 81) : MC_Color(51, 51, 51), textSize);
-			DrawUtils::drawText(textPos, &textStr, mod->isEnabled() ? MC_Color(167, 167, 167) : MC_Color(167, 167, 167), textSize); //made more grey
+			DrawUtils::drawText(textPos, &textStr, mod->isEnabled() ? MC_Color(167, 167, 167) : MC_Color(194, 194, 194), textSize); //made more grey
 
 			// Settings
 			{
