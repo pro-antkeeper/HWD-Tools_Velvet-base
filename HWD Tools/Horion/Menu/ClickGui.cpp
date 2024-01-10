@@ -274,7 +274,7 @@ void ClickGui::renderCategory(Category category) {
 			// Text
 			if (allowRender)
 				//DrawUtils::fillRectangle(rectPos, mod->isEnabled() ? MC_Color(240, 169, 81) : MC_Color(51, 51, 51), textSize);
-			DrawUtils::drawText(textPos, &textStr, mod->isEnabled() ? MC_Color(245, 239, 245) : MC_Color(245, 239, 245), textSize);
+			DrawUtils::drawText(textPos, &textStr, mod->isEnabled() ? MC_Color(167, 167, 167) : MC_Color(167, 167, 167), textSize); //made more grey
 
 			// Settings
 			{
