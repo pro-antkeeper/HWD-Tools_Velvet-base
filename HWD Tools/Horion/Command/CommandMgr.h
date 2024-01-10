@@ -29,7 +29,7 @@ public:
 	CommandMgr(GameData* gm);
 	~CommandMgr();
 
-	char prefix = '!';
+	char prefix = '.';
 
 	void initCommands();
 	void disable();
