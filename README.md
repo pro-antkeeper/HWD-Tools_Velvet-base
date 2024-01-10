@@ -26,6 +26,7 @@
 <p>-fix the fps display?
 <p>-get a patched anticrystal?
 <p>-finish ping display
+<p>-pvpressources: -rename it -make them stack if 0 -echests times 8
 
 ## Other things to do:
 <p>-Finish making the repo thing lol
