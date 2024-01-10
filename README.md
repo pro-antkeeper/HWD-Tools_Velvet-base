@@ -32,7 +32,7 @@
 <p>-Finish making the repo thing lol
 <p>-Remove dumb modules
 <p>-Change the categories
-<p>-Change the gui
+<p>-Add color options on gui
 <p>-Add the draw solid box to the drawutils
 <p>-Yoink the semi instant packet mine somehow
 <p>-Make the client compatible with other client (last step)
