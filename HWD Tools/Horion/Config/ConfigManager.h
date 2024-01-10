@@ -26,7 +26,7 @@ public:
 	ConfigManager();
 	~ConfigManager();
 
-	std::string currentConfig = "OrionNuclearV2";
+	std::string currentConfig = "Highway Lunchbox";
 
 	void loadConfig(std::string name, bool create);
 	void saveConfig();
