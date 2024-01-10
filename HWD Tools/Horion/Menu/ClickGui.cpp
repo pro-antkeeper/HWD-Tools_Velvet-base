@@ -37,16 +37,16 @@ static constexpr float categoryMargin = 0.5f;
 static constexpr float paddingRight = 13.5f;
 static constexpr float crossSize = textHeight / 2.f;
 static constexpr float crossWidth = 0.3f;
-static const MC_Color enabledModuleColor = MC_Color(255, 0, 0);
+static const MC_Color enabledModuleColor = MC_Color(0, 145, 0); //green'd
 static const MC_Color whiteColor = MC_Color(1.f, 1.f, 1.f);
 static const MC_Color selectedModuleColor = MC_Color(12.f, 62.f, 8.f);
 static const MC_Color selectedSettingColor1 = MC_Color(12.f, 62.f, 8.f);
 static const MC_Color selectedSettingColor2 = MC_Color(12.f, 62.f, 8.f);
 static const MC_Color moduleColor = MC_Color(0.f, 0.f, 0.f);
 static const MC_Color lmao = MC_Color(51, 51, 51);
-static const MC_Color brightModuleBlendColor = MC_Color(255, 0, 0);
-static const MC_Color SettingColor1 = MC_Color(240, 169, 81);  // not enabled enums
-static const MC_Color SettingColor2 = MC_Color(240, 169, 81);  // enabled enums and enums when hovering over with mouse
+static const MC_Color brightModuleBlendColor = MC_Color(0, 145, 0); //green'd
+static const MC_Color SettingColor1 = MC_Color(35, 85, 35);  // not enabled enums //green'd
+static const MC_Color SettingColor2 = MC_Color(35, 85, 35);  // enabled enums and enums when hovering over with mouse //green'd
 
 float currentYOffset = 0;
 float currentXOffset = 0;
@@ -254,7 +254,7 @@ void ClickGui::renderCategory(Category category) {
 				if (!ourWindow->isInAnimation && !isDragging && rectPos.contains(&mousePos)) {  // Is the Mouse hovering above us?
 					static auto clickGuiMod = moduleMgr->getModule<ClickGuiMod>();
 
-						DrawUtils::fillRectangle(rectPos, MC_Color(255, 0, 0), 0.2f);	// hovering
+						DrawUtils::fillRectangle(rectPos, MC_Color(0, 45, 0), 0.2f);	// hovering //green'd
 
 					std::string tooltip = mod->getTooltip();
 					//static auto clickGuiMod = moduleMgr->getModule<ClickGuiMod>();
