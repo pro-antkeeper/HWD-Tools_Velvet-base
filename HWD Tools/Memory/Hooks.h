@@ -93,7 +93,6 @@ private:
 	static float Dimension_getSunIntensity(__int64, float a2, vec3_t* a3, float a4);
 	static void ChestBlockActor_tick(C_ChestBlockActor*, void* a);
 	static void Actor_lerpMotion(C_Entity* _this, vec3_t);
-	static int AppPlatform_getGameEdition(__int64 _this);
 	static void PleaseAutoComplete(__int64 _this, __int64 a2, TextHolder* text, int a4);
 	static void LoopbackPacketSender_sendToServer(C_LoopbackPacketSender* a, C_Packet* packet);
 	static float LevelRendererPlayer_getFov(__int64 _this, float a2, bool a3);
@@ -107,7 +106,6 @@ private:
 	static __int64 MoveInputHandler_tick(C_MoveInputHandler* _this, C_Entity* a2);
 	static float GetGamma(uintptr_t* a1);
 	static void JumpPower(C_Entity* _this, float a2);
-	static void Actor_ascendLadder(C_Entity* _this);
 	static void Actor_swing(C_Entity* _this);
 	static void Actor_startSwimming(C_Entity* _this);
 	static void RakNetInstance_tick(C_RakNetInstance* _this, __int64 a2, __int64 a3);
