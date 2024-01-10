@@ -59,8 +59,6 @@ void Hooks::Init() {
 			else {
 				g_Hooks.Actor_startSwimmingHook = std::make_unique<FuncHook>(localPlayerVtable[201], Hooks::Actor_startSwimming);
 
-				g_Hooks.Actor_ascendLadderHook = std::make_unique<FuncHook>(localPlayerVtable[339], Hooks::Actor_ascendLadder);
-
 				g_Hooks.Actor__setRotHook = std::make_unique<FuncHook>(localPlayerVtable[27], Hooks::Actor__setRot);
 
 				g_Hooks.Actor_swingHook = std::make_unique<FuncHook>(localPlayerVtable[219], Hooks::Actor_swing);
@@ -158,9 +156,6 @@ void Hooks::Init() {
 
 		//void* ascendLadder = reinterpret_cast<void*>(FindSignature("C7 81 ? ? ? ? ? ? ? ? C3 CC CC CC CC CC C7 81 ? ? ? ? ? ? ? ? C3 CC CC CC CC CC C7 81"));
 		//g_Hooks.Actor_ascendLadderHook = std::make_unique<FuncHook>(ascendLadder, Hooks::Actor_ascendLadder);
-
-		void* getGameEdition = reinterpret_cast<void*>(FindSignature("8B 91 ?? ?? ?? ?? 85 D2 74 1C 83 EA 01"));
-		g_Hooks.AppPlatform_getGameEditionHook = std::make_unique<FuncHook>(getGameEdition, Hooks::AppPlatform_getGameEdition);
 
 		uintptr_t** packetSenderVtable = reinterpret_cast<uintptr_t**>(*(uintptr_t*)g_Data.getClientInstance()->loopbackPacketSender);
 		g_Hooks.LoopbackPacketSender_sendToServerHook = std::make_unique<FuncHook>(packetSenderVtable[2], Hooks::LoopbackPacketSender_sendToServer);
@@ -980,17 +975,6 @@ void Hooks::Actor_lerpMotion(C_Entity* _this, vec3_t motVec) {
 	oLerp(_this, motVec);
 }
 
-int Hooks::AppPlatform_getGameEdition(__int64 _this) {
-	static auto oGetEditon = g_Hooks.AppPlatform_getGameEditionHook->GetFastcall<signed int, __int64>();
-
-	static auto mod = moduleMgr->getModule<EditionFaker>();
-	if (mod->isEnabled()) {
-		return mod->getFakedEditon();
-	}
-
-	return oGetEditon(_this);
-}
-
 void Hooks::PleaseAutoComplete(__int64 a1, __int64 a2, TextHolder* text, int a4) {
 	static auto oAutoComplete = g_Hooks.PleaseAutoCompleteHook->GetFastcall<void, __int64, __int64, TextHolder*, int>();
 	char* tx = text->getText();
@@ -1099,8 +1083,6 @@ void Hooks::LoopbackPacketSender_sendToServer(C_LoopbackPacketSender* a, C_Packe
 	static auto freecamMod = moduleMgr->getModule<Freecam>();
 	static auto blinkMod = moduleMgr->getModule<Blink>();
 	static auto noPacketMod = moduleMgr->getModule<NoPacket>();
-	static auto instabreakMod = moduleMgr->getModule<InstaBreak>();
-	static auto pm = moduleMgr->getModule<FastXPtwo>();
 
 	if (noPacketMod->isEnabled() && g_Data.isInGame())
 		return;
@@ -1155,15 +1137,10 @@ void Hooks::LoopbackPacketSender_sendToServer(C_LoopbackPacketSender* a, C_Packe
 		auto text = reinterpret_cast<TextHolder*>(reinterpret_cast<__int64>(packet) + 0x30);
 		auto bet = reinterpret_cast<unsigned char*>(reinterpret_cast<__int64>(packet) + 0x50);
 		logF("emote %llX %s %i", *varInt, text->getText(), *bet);
-	} fix emote crashing*/
+	} fix emote crashing*/ 
 	auto* pp = reinterpret_cast<C_PlayerActionPacket*>(packet);
-	if ((pm->isEnabled() && pm->okPacketSent && !(packet->isInstanceOf<C_MovePlayerPacket>() && packet->isInstanceOf<PlayerAuthInputPacket>())) || (instabreakMod->isEnabled() && !(packet->isInstanceOf<C_MovePlayerPacket>() && packet->isInstanceOf<PlayerAuthInputPacket>()) && (pp->action == 2 && pp->entityRuntimeId == g_Data.getLocalPlayer()->entityRuntimeId))) {
-		for (int PacketMult = 0; PacketMult < pm->multiplier; PacketMult++)
-			oFunc(a, packet);
-	}
-	else {
-		oFunc(a, packet);
-	}
+
+	oFunc(a, packet);
 }
 
 float Hooks::LevelRendererPlayer_getFov(__int64 _this, float a2, bool a3) {
@@ -1183,7 +1160,6 @@ void Hooks::GameMode_startDestroyBlock(C_GameMode* _this, vec3_ti* a2, uint8_t f
 	static auto oFunc = g_Hooks.GameMode_startDestroyBlockHook->GetFastcall<void, C_GameMode*, vec3_ti*, uint8_t, void*, void*>();
 
 	static auto nukerModule = moduleMgr->getModule<Nuker>();
-	static auto instaBreakModule = moduleMgr->getModule<InstaBreak>();
 	//static auto packetMine = moduleMgr->getModule<PacketMine>();
 
 	if (nukerModule->isEnabled()) {
@@ -1218,25 +1194,7 @@ void Hooks::GameMode_startDestroyBlock(C_GameMode* _this, vec3_ti* a2, uint8_t f
 		return;
 	}
 	int Odelay = 0;
-	if (instaBreakModule->isEnabled() && instaBreakModule->Modes.GetSelectedEntry().GetValue() == 0) { // vanilla ib
-		_this->destroyBlock(a2, face);
-		return;
-	}
-	if (instaBreakModule->isEnabled() && instaBreakModule->Modes.GetSelectedEntry().GetValue() == 1) { // packet ib
-		if (g_Data.getLocalPlayer()->region->getBlock(*a2)->toLegacy()->blockId != 7) {
-			_this->destroyBlock(a2, 0xFFFFFFFFFFFFFF);
 
-			return;
-		}
-	}
-	if (instaBreakModule->isEnabled() && instaBreakModule->Modes.GetSelectedEntry().GetValue() == 2) { // haste ib
-		Odelay++;
-		if (g_Data.getLocalPlayer()->region->getBlock(*a2)->toLegacy()->blockId != 7) {
-			if (Odelay == instaBreakModule->delay) _this->destroyBlock(a2, face);
-			if (Odelay == instaBreakModule->delay) Odelay = 0;
-			return;
-		}
-	}
 	/* if (packetMine->isEnabled() && (packetMine->mineNow)) {
 		_this->destroyBlock(&packetMine->currentBlock, face);
 		return;
@@ -1427,18 +1385,6 @@ void Hooks::JumpPower(C_Entity* a1, float a2) {
 		return;
 	}
 	oFunc(a1, a2);
-}
-
-
-void Hooks::Actor_ascendLadder(C_Entity* _this) {
-	static auto oFunc = g_Hooks.Actor_ascendLadderHook->GetFastcall<void, C_Entity*>();
-
-	static auto fastLadderModule = moduleMgr->getModule<FastLadder>();
-	if (fastLadderModule->isEnabled() && g_Data.getLocalPlayer() == _this) {
-		_this->velocity.y = fastLadderModule->speed;
-		return;
-	}
-	return oFunc(_this);
 }
 
 void Hooks::Actor_swing(C_Entity* _this) {
@@ -1803,7 +1749,6 @@ bool Hooks::Mob__isImmobile(C_Entity* ent) {
 void Hooks::Actor__setRot(C_Entity* _this, vec2_t& angle) {
 	auto func = g_Hooks.Actor__setRotHook->GetFastcall<void, C_Entity*, vec2_t&>();
 	auto killauraMod = moduleMgr->getModule<Killaura>();
-	auto freelookMod = moduleMgr->getModule<Freelook>();
 	auto jtwdCAMod = moduleMgr->getModule<CrystalPlace>();
 	auto jtwdBRMod = moduleMgr->getModule<CrystalBreak>();
 	auto surrMod = moduleMgr->getModule<Surround>();
@@ -1813,9 +1758,6 @@ void Hooks::Actor__setRot(C_Entity* _this, vec2_t& angle) {
 
 	if (killauraMod->isEnabled() && !killauraMod->targetListEmpty && killauraMod->rotations && _this == g_Data.getLocalPlayer()) {
 		func(_this, angle = killauraMod->angle);
-	}
-	if (freelookMod->isEnabled() && g_Data.getLocalPlayer() == _this) {
-		func(_this, angle = freelookMod->oldPos);
 	}
 	if (jtwdCAMod->isEnabled() &&
 		jtwdCAMod->rotate.GetSelectedEntry().GetValue() == 1 &&
