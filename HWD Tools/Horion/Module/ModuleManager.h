@@ -41,7 +41,6 @@
 #include "Modules/AutoHighway.h"
 #include "Modules/YawLock.h" 
 
-#include "Modules/RobotHolefiller.h"
 #include "Modules/CityESP.h"
 #include "Modules/RenSurround.h"
 #include "Modules/TargetHud.h"
@@ -52,20 +51,17 @@
 #include "Modules/LiquidMove.h"
 #include "Modules/ReverseStep.h"
 
-#include "Modules/BPGRewrite.h"
 #include "Modules/CrystalUtilsJTWD.h"  // in progress
 #include "Modules/NoClip.h"		  // works
 #include "Modules/surround.h"     // fixed
 #include "Modules/AutoTrap.h"	  // fixed
 #include "Modules/HoleESP.h"      // fixed
-#include "Modules/HoleFiller.h"	  // fixed
 #include "Modules//FastExp.h"
 #include "Modules/Aimbot.h"
 #include "Modules/AntiBot.h"
 #include "Modules/AutoArmor.h"
 #include "Modules/AutoSneak.h"
 #include "Modules/AutoTotem.h"
-#include "Modules/Fucker.h"
 #include "Modules/Blink.h"
 #include "Modules/AntiVoid.h"
 #include "Modules/StorageESP.h"
@@ -76,11 +72,7 @@
 #include "Modules/Freecam.h"
 #include "Modules/FullBright.h"
 #include "Modules/Glide.h"
-#include "Modules/HighJump.h"
 #include "Modules/Hitbox.h"
-#include "Modules/InfiniteAura.h"
-#include "Modules/InventoryMove.h"
-#include "Modules/Jesus.h"
 #include "Modules/Jetpack.h"
 #include "Modules/Killaura.h"
 #include "Modules/MidClick.h"
