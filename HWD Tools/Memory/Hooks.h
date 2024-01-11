@@ -105,9 +105,7 @@ private:
 	static void ClickFunc(__int64 a1, char a2, char a3, __int16 a4, __int16 a5, __int16 a6, __int16 a7, char a8);
 	static __int64 MoveInputHandler_tick(C_MoveInputHandler* _this, C_Entity* a2);
 	static float GetGamma(uintptr_t* a1);
-	static void JumpPower(C_Entity* _this, float a2);
 	static void Actor_swing(C_Entity* _this);
-	static void Actor_startSwimming(C_Entity* _this);
 	static void RakNetInstance_tick(C_RakNetInstance* _this, __int64 a2, __int64 a3);
 	static float GameMode_getPickRange(C_GameMode* _this, __int64 a2, char a3);
 	static __int64 GameMode_attack(C_GameMode* _this, C_Entity*);
