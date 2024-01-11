@@ -1,192 +1,292 @@
-#pragma once
+#include "ModuleManager.h"
+#include "../../Utils/Logger.h"
+#include "../../Utils/Json.hpp"
 
-#include <typeinfo>
-#include <vector>
-#include <optional>
-#include <memory>
-#include <mutex>
-#include <shared_mutex>
+using json = nlohmann::json;
 
-#include "../../Memory/GameData.h"
+ModuleManager::ModuleManager(GameData* gameData) {
+	gameData = gameData;
+}
 
-#ifdef _BETA
-#include "Modules/Verification.h"
-#endif
+ModuleManager::~ModuleManager() {
+	initialized = false;
+	auto lock = lockModuleListExclusive();
+	moduleList.clear();
+}
 
-#include "Modules/PacketMine.h"
-#include "Modules/DeathCoords.h"
-#include "Modules/PvPResources.h"
-#include "Modules/AutoEZ.h"		  // funny    
-#include "Modules/Arraylist.h"
+void ModuleManager::initModules() {
+	logF("Initializing modules");
+	{
+		auto lock = lockModuleListExclusive();
 
-#include "Modules/AutoGapple.h"
-#include "Modules/ClickGuiMod.h"
-#include "Modules/Placer.h"
-#include "Modules/Excavator.h"
-#include "Modules/HudModule.h"
-#include "Modules/AutoLog.h"
-#include "Modules/ExtendedBlockReach.h"
-#include "Modules/InventoryCleaner.h"
-#include "Modules/EChestFarmer.h"
-#include "Modules/Timer.h"
-#include "Modules/ChatSuffix.h"
-#include "Modules/FallSave.h"
-#include "Modules/Module.h"
-#include "Modules/NameTags.h"
-#include "Modules/Scaffold.h"
-#include "Modules/Spammer.h"
-#include "Modules/Waypoints.h"
-#include "Modules/Watermark.h"
-#include "Modules/Theme.h"
-#include "Modules/AutoHighway.h"
-#include "Modules/YawLock.h" 
+		moduleList.push_back(std::shared_ptr<IModule>(new PacketMine()));
+		moduleList.push_back(std::shared_ptr<IModule>(new DeathCoords()));  
+		moduleList.push_back(std::shared_ptr<IModule>(new pvpResources()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AutoEZ()));
+		moduleList.push_back(std::shared_ptr<IModule>(new HudModule()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Scaffold()));
+		moduleList.push_back(std::shared_ptr<IModule>(new ClickGuiMod()));
+		moduleList.push_back(std::shared_ptr<IModule>(new ExtendedBlockReach()));
+		moduleList.push_back(std::shared_ptr<IModule>(new ChatSuffix()));
+		moduleList.push_back(std::shared_ptr<IModule>(new FallSave()));
+		moduleList.push_back(std::shared_ptr<IModule>(new EChestFarmer()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Timer()));
+		moduleList.push_back(std::shared_ptr<IModule>(new NameTags()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Spammer()));
+		moduleList.push_back(std::shared_ptr<IModule>(new InventoryCleaner()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Placer()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Waypoints()));
+		moduleList.push_back(std::shared_ptr<IModule>(new ArrayList()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AntiDesync()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Watermark()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Theme()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AutoHighway()));
+		moduleList.push_back(std::shared_ptr<IModule>(new yawLock()));
+		//moduleList.push_back(std::shared_ptr<IModule>(new HighwayTools()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Excavator()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AutoLog()));
 
-#include "Modules/CityESP.h"
-#include "Modules/RenSurround.h"
-#include "Modules/TargetHud.h"
-#include "Modules/StrafeSpeed.h"
-#include "Modules/BlockEsp.h"
-#include "Modules/AnvilAura.h"
-#include "Modules/BowSpam.h"
-#include "Modules/LiquidMove.h"
-#include "Modules/ReverseStep.h"
+		moduleList.push_back(std::shared_ptr<IModule>(new CityESP()));
+		moduleList.push_back(std::shared_ptr<IModule>(new RenSurround()));
+		moduleList.push_back(std::shared_ptr<IModule>(new TargetHud()));
+		moduleList.push_back(std::shared_ptr<IModule>(new StrafeSpeed()));
+		moduleList.push_back(std::shared_ptr<IModule>(new BlockEsp()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AnvilAura()));
+		moduleList.push_back(std::shared_ptr<IModule>(new BowSpam()));
+		moduleList.push_back(std::shared_ptr<IModule>(new LiquidMove()));
+		moduleList.push_back(std::shared_ptr<IModule>(new ReverseStep()));
+		moduleList.push_back(std::shared_ptr<IModule>(new FastXP()));
+		moduleList.push_back(std::shared_ptr<IModule>(new CrystalPlace()));
+		moduleList.push_back(std::shared_ptr<IModule>(new CrystalBreak()));
+		moduleList.push_back(std::shared_ptr<IModule>(new NoClip()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Surround()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AutoTrap()));
+		moduleList.push_back(std::shared_ptr<IModule>(new HoleEsp()));
 
-#include "Modules/CrystalUtilsJTWD.h"  // in progress
-#include "Modules/NoClip.h"		  // works
-#include "Modules/surround.h"     // fixed
-#include "Modules/AutoTrap.h"	  // fixed
-#include "Modules/HoleESP.h"      // fixed
-#include "Modules//FastExp.h"
-#include "Modules/Aimbot.h"
-#include "Modules/AntiBot.h"
-#include "Modules/AutoArmor.h"
-#include "Modules/AutoSneak.h"
-#include "Modules/AutoTotem.h"
-#include "Modules/Blink.h"
-#include "Modules/AntiVoid.h"
-#include "Modules/StorageESP.h"
-#include "Modules/Teleport.h"
-#include "Modules/Criticals.h"
-#include "Modules/CrystalAura.h"
-#include "Modules/ESP.h"
-#include "Modules/Freecam.h"
-#include "Modules/FullBright.h"
-#include "Modules/Glide.h"
-#include "Modules/Hitbox.h"
-#include "Modules/Jetpack.h"
-#include "Modules/Killaura.h"
-#include "Modules/MidClick.h"
-#include "Modules/NoFall.h"
-#include "Modules/NoFriends.h"
-#include "Modules/Velocity.h"
-#include "Modules/NoPacket.h"
-#include "Modules/NoSlowDown.h"
-#include "Modules/NoWeb.h"
-#include "Modules/Nuker.h"
-#include "Modules/Phase.h"
-#include "Modules/RainbowSky.h"
-#include "Modules/Reach.h"
-#include "Modules/Speed.h"
-#include "Modules/StackableItem.h"
-#include "Modules/Step.h"
-#include "Modules/TimeChanger.h"
-#include "Modules/Tower.h"
-#include "Modules/Tracer.h"
-#include "Modules/TriggerBot.h"
-#include "Modules/Xray.h"
-#include "Modules/NightMode.h"
-#include "Modules/NoSwing.h"
-#include "Modules/Zoom.h"
-#include "Modules/Teams.h"
-#include "Modules/Nbt.h"
-#include "Modules/NoHurtcam.h"
-#include "Modules/AntiImmobile.h"
-#include "Modules/Spider.h"
-#include "Modules/Compass.h"
-#include "Modules/Radar.h"
-#include "Modules/Twerk.h"
-#include "Modules/FontChanger.h"
-#include "Modules/Coordinates.h"
-#include "Modules/AntiDesync.h"
-//#include "Modules/HighwayTools.h"
+		moduleList.push_back(std::shared_ptr<IModule>(new Killaura()));
+		moduleList.push_back(std::shared_ptr<IModule>(new ESP()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Jetpack()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Aimbot()));
+		moduleList.push_back(std::shared_ptr<IModule>(new TriggerBot()));
+		moduleList.push_back(std::shared_ptr<IModule>(new StorageESP()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Velocity()));
+		moduleList.push_back(std::shared_ptr<IModule>(new RainbowSky()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Step()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Glide()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Phase()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Freecam()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Tracer()));
+		moduleList.push_back(std::shared_ptr<IModule>(new NoFall()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Blink()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Nuker()));
+		moduleList.push_back(std::shared_ptr<IModule>(new NoPacket()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Speed()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Xray()));
+		moduleList.push_back(std::shared_ptr<IModule>(new NoSlowDown()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AutoTotem()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Hitbox()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Reach()));
+		moduleList.push_back(std::shared_ptr<IModule>(new FullBright()));
+		moduleList.push_back(std::shared_ptr<IModule>(new NoWeb()));
+		moduleList.push_back(std::shared_ptr<IModule>(new StackableItem()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AutoArmor()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Criticals()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Tower()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AntiVoid()));
+		moduleList.push_back(std::shared_ptr<IModule>(new MidClick()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Teleport()));
+		moduleList.push_back(std::shared_ptr<IModule>(new NoFriends()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AntiBot()));
+		moduleList.push_back(std::shared_ptr<IModule>(new CrystalAura()));
+		moduleList.push_back(std::shared_ptr<IModule>(new NightMode()));
+		moduleList.push_back(std::shared_ptr<IModule>(new NoSwing()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Zoom()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Teams()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Nbt()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AutoSneak()));
+		moduleList.push_back(std::shared_ptr<IModule>(new NoHurtcam()));
+		moduleList.push_back(std::shared_ptr<IModule>(new AntiImmobile()));
+		moduleList.push_back(std::shared_ptr<IModule>(new TimeChanger()));
+		moduleList.push_back(std::shared_ptr<IModule>(new	Spider()));
+		moduleList.push_back(std::shared_ptr<IModule>(new	Compass()));
+		moduleList.push_back(std::shared_ptr<IModule>(new	Radar()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Twerk()));
+		moduleList.push_back(std::shared_ptr<IModule>(new FontChanger()));
+		moduleList.push_back(std::shared_ptr<IModule>(new Coordinates()));
 
 #ifdef _DEBUG
-#include "Modules/PacketLogger.h"
+		moduleList.push_back(std::shared_ptr<IModule>(new PacketLogger()));
 #endif
 
+		// Sort modules alphabetically
+		std::sort(moduleList.begin(), moduleList.end(), [](auto lhs, auto rhs) {
+			auto current = lhs;
+			auto other = rhs;
+			return std::string{*current->getModuleName()} < std::string{*other->getModuleName()};
+		});
 
-class ModuleManager {
-private:
-	GameData* gameData;
-	std::vector<std::shared_ptr<IModule>> moduleList;
-	bool initialized = false;
-	std::shared_mutex moduleListMutex;
-
-public:
-	~ModuleManager();
-	ModuleManager(GameData* gameData);
-	void initModules();
-	void disable();
-	void onLoadConfig(void* conf);
-	void onSaveConfig(void* conf);
-	void onTick(C_GameMode* gameMode);
-	void onAttack(C_Entity* attackedEnt);
-	void onWorldTick(C_GameMode* gameMode);
-	void onKeyUpdate(int key, bool isDown);
-	void onPreRender(C_MinecraftUIRenderContext* renderCtx);
-	void onPostRender(C_MinecraftUIRenderContext* renderCtx);
-	void onLevelRender();
-	void onMove(C_MoveInputHandler* handler);
-	void onPlayerTick(C_Player* plr);
-	void onSendPacket(C_Packet*);
-
-	std::shared_lock<std::shared_mutex> lockModuleList() { return std::shared_lock(moduleListMutex); }
-	std::unique_lock<std::shared_mutex> lockModuleListExclusive() { return std::unique_lock(moduleListMutex); }
-	
-	std::shared_mutex* getModuleListLock() { return &moduleListMutex; }
-
-	bool isInitialized() { return initialized; };
-	std::vector<std::shared_ptr<IModule>>* getModuleList();
-
-	int getModuleCount();
-	int getEnabledModuleCount();
-
-	/*
-	 *	Use as follows: 
-	 *		IModule* mod = moduleMgr.getModule<NoKnockBack>(); 
-	 *	Check for nullptr directly after that call, as Hooks::init is called before ModuleManager::initModules !	
-	 */
-	template <typename TRet>
-	TRet* getModule() {
-		if (!isInitialized())
-			return nullptr;
-		auto lock = lockModuleList();
-		for (auto pMod : moduleList) {
-			if (auto pRet = dynamic_cast<typename std::remove_pointer<TRet>::type*>(pMod.get())){
-				
-				return pRet;
-			}
-		}
-		return nullptr;
-	};
-
-	// Dont Use this functions unless you absolutely need to. The function above this one works in 99% of cases
-	std::optional<std::shared_ptr<IModule>> getModuleByName(const std::string name) {
-		if (!isInitialized())
-			return nullptr;
-		std::string nameCopy = name;
-		std::transform(nameCopy.begin(), nameCopy.end(), nameCopy.begin(), ::tolower);
-		
-		auto lock = lockModuleList();
-		for (std::vector<std::shared_ptr<IModule>>::iterator it = moduleList.begin(); it != moduleList.end(); ++it) {
-			std::shared_ptr<IModule> mod = *it;
-			std::string modNameCopy = mod->getRawModuleName();
-			std::transform(modNameCopy.begin(), modNameCopy.end(), modNameCopy.begin(), ::tolower);
-			if (modNameCopy == nameCopy)
-				return std::optional<std::shared_ptr<IModule>>(mod);
-		}
-		return std::optional<std::shared_ptr<IModule>>();
+		initialized = true;
 	}
-};
+	
+#ifdef _BETA
+	this->getModule<Verification>()->setEnabled(true);
+#endif  // DEBUG
 
-extern ModuleManager* moduleMgr;
+	getModule<HudModule>()->setEnabled(true);
+	getModule<ClickGuiMod>()->setEnabled(false);
+}
+
+void ModuleManager::disable() {
+	auto lock = lockModuleList();
+	for (auto& mod : moduleList) {
+		if (mod->isEnabled())
+			mod->setEnabled(false);
+	}
+}
+
+void ModuleManager::onLoadConfig(void* confVoid) {
+	auto conf = reinterpret_cast<json*>(confVoid);
+	if (!isInitialized())
+		return;
+	auto lock = lockModuleList();
+	for (auto& mod : moduleList) {
+		mod->onLoadConfig(conf);
+	}
+
+	getModule<HudModule>()->setEnabled(true);
+	getModule<ClickGuiMod>()->setEnabled(false);
+
+#ifdef _BETA
+	this->getModule<Verification>()->setEnabled(true);
+#endif  // DEBUG
+}
+
+void ModuleManager::onSaveConfig(void* confVoid) {
+	auto conf = reinterpret_cast<json*>(confVoid);
+	if (!isInitialized())
+		return;
+	auto lock = lockModuleList();
+	for (auto& mod : moduleList) {
+		mod->onSaveConfig(conf);
+	}
+}
+
+void ModuleManager::onPlayerTick(C_Player* plr) {
+	if (!isInitialized())
+		return;
+	auto lock = lockModuleList();
+	for (auto& mod : moduleList) {
+		if (mod->isEnabled() || mod->callWhenDisabled())
+			mod->onPlayerTick(plr);
+	}
+}
+
+
+void ModuleManager::onWorldTick(C_GameMode* gameMode) {
+	if (!isInitialized())
+		return;
+	auto lock = lockModuleList();
+	for (auto& mod : moduleList) {
+		if (mod->isEnabled() || mod->callWhenDisabled())
+			mod->onWorldTick(gameMode);
+	}
+}
+
+void ModuleManager::onTick(C_GameMode* gameMode) {
+	if (!isInitialized())
+		return;
+	auto lock = lockModuleList();
+	for (auto& mod : moduleList) {
+		if (mod->isEnabled() || mod->callWhenDisabled())
+			mod->onTick(gameMode);
+	}
+}
+
+void ModuleManager::onAttack(C_Entity* attackEnt) {
+	if (!isInitialized())
+		return;
+
+	auto lock = lockModuleList();
+	for (auto& mod : moduleList) {
+		if (mod->isEnabled() || mod->callWhenDisabled())
+			mod->onAttack(attackEnt);
+	}
+}
+
+void ModuleManager::onKeyUpdate(int key, bool isDown) {
+	if (!isInitialized())
+		return;
+	auto lock = lockModuleList();
+	for (auto& mod : moduleList) {
+		mod->onKeyUpdate(key, isDown);
+	}
+}
+
+void ModuleManager::onPreRender(C_MinecraftUIRenderContext* renderCtx) {
+	if (!isInitialized())
+		return;
+	auto mutex = lockModuleList();
+
+	for (auto& mod : moduleList) {
+		if (mod->isEnabled() || mod->callWhenDisabled())
+			mod->onPreRender(renderCtx);
+	}
+}
+
+void ModuleManager::onPostRender(C_MinecraftUIRenderContext* renderCtx) {
+	if (!isInitialized())
+		return;
+	auto mutex = lockModuleList();
+
+	for (auto& mod : moduleList) {
+		if (mod->isEnabled() || mod->callWhenDisabled())
+			mod->onPostRender(renderCtx);
+	}
+}
+
+void ModuleManager::onSendPacket(C_Packet* packet) {
+	if (!isInitialized())
+		return;
+	auto lock = lockModuleList();
+	for (auto& it : moduleList) {
+		if (it->isEnabled() || it->callWhenDisabled())
+			it->onSendPacket(packet);
+	}
+}
+
+std::vector<std::shared_ptr<IModule>>* ModuleManager::getModuleList() {
+	return &moduleList;
+}
+
+int ModuleManager::getModuleCount() {
+	return (int)moduleList.size();
+}
+
+int ModuleManager::getEnabledModuleCount() {
+	int i = 0;
+	auto lock = lockModuleList();
+	for (auto& it : moduleList) {
+		if (it->isEnabled()) i++;
+	}
+	return i;
+}
+void ModuleManager::onMove(C_MoveInputHandler* hand) {
+	if (!isInitialized())
+		return;
+	auto lock = lockModuleList();
+	for (auto& it : moduleList) {
+		if (it->isEnabled() || it->callWhenDisabled())
+			it->onMove(hand);
+	}
+}
+void ModuleManager::onLevelRender() {
+	if (!isInitialized())
+		return;
+	auto lock = lockModuleList();
+	for (auto& it : moduleList) {
+		if (it->isEnabled() || it->callWhenDisabled())
+			it->onLevelRender();
+	}
+}
+
+ModuleManager* moduleMgr = new ModuleManager(&g_Data);
