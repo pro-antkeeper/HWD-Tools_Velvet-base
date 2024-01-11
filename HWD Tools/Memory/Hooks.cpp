@@ -57,13 +57,10 @@ void Hooks::Init() {
 			if (localPlayerVtable == 0x0 || sigOffset == 0x0)
 				logF("C_LocalPlayer signature not working!!!");
 			else {
-				g_Hooks.Actor_startSwimmingHook = std::make_unique<FuncHook>(localPlayerVtable[201], Hooks::Actor_startSwimming);
 
 				g_Hooks.Actor__setRotHook = std::make_unique<FuncHook>(localPlayerVtable[27], Hooks::Actor__setRot);
 
 				g_Hooks.Actor_swingHook = std::make_unique<FuncHook>(localPlayerVtable[219], Hooks::Actor_swing);
-
-				g_Hooks.JumpPowerHook = std::make_unique<FuncHook>(localPlayerVtable[345], Hooks::JumpPower); //jump from ground with movement proxy
 
 				//g_Hooks.setPosHook = std::make_unique<FuncHook>(localPlayerVtable[19], Hooks::setPos);
 
@@ -1377,30 +1374,10 @@ float Hooks::GetGamma(uintptr_t* a1) {
 	return ofunc(a1);
 }
 
-void Hooks::JumpPower(C_Entity* a1, float a2) {
-	static auto oFunc = g_Hooks.JumpPowerHook->GetFastcall<void, C_Entity*, float>();
-	static auto highJumpMod = moduleMgr->getModule<HighJump>();
-	if (highJumpMod->isEnabled() && g_Data.getLocalPlayer() == a1) {
-		a1->velocity.y = highJumpMod->jumpPower;
-		return;
-	}
-	oFunc(a1, a2);
-}
-
 void Hooks::Actor_swing(C_Entity* _this) {
 	static auto oFunc = g_Hooks.Actor_swingHook->GetFastcall<void, C_Entity*>();
 	static auto noSwingMod = moduleMgr->getModule<NoSwing>();
 	if (!noSwingMod->isEnabled()) return oFunc(_this);
-}
-
-void Hooks::Actor_startSwimming(C_Entity* _this) {
-	static auto oFunc = g_Hooks.Actor_startSwimmingHook->GetFastcall<void, C_Entity*>();
-
-	static auto jesusModule = moduleMgr->getModule<Jesus>();
-	if (jesusModule->isEnabled() && g_Data.getLocalPlayer() == _this)
-		return;
-
-	oFunc(_this);
 }
 
 void Hooks::RakNetInstance_tick(C_RakNetInstance* _this, __int64 a2, __int64 a3) {
@@ -1753,7 +1730,6 @@ void Hooks::Actor__setRot(C_Entity* _this, vec2_t& angle) {
 	auto jtwdBRMod = moduleMgr->getModule<CrystalBreak>();
 	auto surrMod = moduleMgr->getModule<Surround>();
 	auto rensurrMod = moduleMgr->getModule<RenSurround>();
-	auto hfMod = moduleMgr->getModule<HoleFiller>();
 	auto atMod = moduleMgr->getModule<AutoTrap>();
 
 	if (killauraMod->isEnabled() && !killauraMod->targetListEmpty && killauraMod->rotations && _this == g_Data.getLocalPlayer()) {
@@ -1792,12 +1768,6 @@ void Hooks::Actor__setRot(C_Entity* _this, vec2_t& angle) {
 
 	if (rensurrMod->isEnabled() && rensurrMod->enum3.GetSelectedEntry().GetValue() == 3 && _this == g_Data.getLocalPlayer() && rensurrMod->mustPitchUp) {
 		for (int i = 0; i > 270; i--) {
-			func(_this, angle = vec2_t(i, 0));
-		}
-	}
-
-	if (hfMod->isEnabled() && hfMod->attemptPitchUp && _this == g_Data.getLocalPlayer()) {
-		for (int i = 0; i > -90; i--) {
 			func(_this, angle = vec2_t(i, 0));
 		}
 	}
