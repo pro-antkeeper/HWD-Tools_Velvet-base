@@ -46,7 +46,6 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new Excavator()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoLog()));
 
-		moduleList.push_back(std::shared_ptr<IModule>(new RobotHolefiller()));
 		moduleList.push_back(std::shared_ptr<IModule>(new CityESP()));
 		moduleList.push_back(std::shared_ptr<IModule>(new RenSurround()));
 		moduleList.push_back(std::shared_ptr<IModule>(new TargetHud()));
@@ -56,7 +55,6 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new BowSpam()));
 		moduleList.push_back(std::shared_ptr<IModule>(new LiquidMove()));
 		moduleList.push_back(std::shared_ptr<IModule>(new ReverseStep()));
-		moduleList.push_back(std::shared_ptr<IModule>(new BPGRewrite()));
 		moduleList.push_back(std::shared_ptr<IModule>(new FastXP()));
 		moduleList.push_back(std::shared_ptr<IModule>(new CrystalPlace()));
 		moduleList.push_back(std::shared_ptr<IModule>(new CrystalBreak()));
@@ -64,7 +62,6 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new Surround()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoTrap()));
 		moduleList.push_back(std::shared_ptr<IModule>(new HoleEsp()));
-		moduleList.push_back(std::shared_ptr<IModule>(new HoleFiller()));
 
 		moduleList.push_back(std::shared_ptr<IModule>(new Killaura()));
 		moduleList.push_back(std::shared_ptr<IModule>(new ESP()));
@@ -85,18 +82,13 @@ void ModuleManager::initModules() {
 		moduleList.push_back(std::shared_ptr<IModule>(new NoPacket()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Speed()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Xray()));
-		moduleList.push_back(std::shared_ptr<IModule>(new Fucker()));
 		moduleList.push_back(std::shared_ptr<IModule>(new NoSlowDown()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoTotem()));
-		moduleList.push_back(std::shared_ptr<IModule>(new InfiniteAura()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Hitbox()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Reach()));
 		moduleList.push_back(std::shared_ptr<IModule>(new FullBright()));
-		moduleList.push_back(std::shared_ptr<IModule>(new InventoryMove()));
-		moduleList.push_back(std::shared_ptr<IModule>(new HighJump()));
 		moduleList.push_back(std::shared_ptr<IModule>(new NoWeb()));
 		moduleList.push_back(std::shared_ptr<IModule>(new StackableItem()));
-		moduleList.push_back(std::shared_ptr<IModule>(new Jesus()));
 		moduleList.push_back(std::shared_ptr<IModule>(new AutoArmor()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Criticals()));
 		moduleList.push_back(std::shared_ptr<IModule>(new Tower()));
