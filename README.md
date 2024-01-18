@@ -15,18 +15,21 @@
 <p>-[to be added] Hotbar replenish that puts obi in all empty slots
 <p>-Inventory cleaner: -make it better
 <p>-[to be added] Badges: (make all hwd employees have a pick beside their name and make em a dif color?)
-<p>-[to be added] Durability display
+<p>-[to be added] Durability display + armour display in cool spots
 <p>-[to be added] Alerts the user when a new player enters render distance (maybe?)
 <p>-[to be added] sesion info?
 <p>-[to be added] Something that can count the amount of blocks broken and placed in a session
 <p>-[to be added] CHONKY SCAFFOLD: (scaffold but chonky, can place a 2x2 or 4x4 platform like scaffold etc)
 <p>-[to be added] auto hwd logo thing? -skid that one thing
 <p>-[to be added] Toggle sounds 
-<p>-Scaffold: -fix the visual stuff
+<p>-Scaffold: -fix the visual stuff -it broken...
 <p>-fix the fps display?
 <p>-get a patched anticrystal?
 <p>-finish ping display
 <p>-pvpressources: -rename it -make them stack if 0 -echests times 8
+<p>-[to be added] playerlist
+<p>-[to be added] better storage esp
+<p>-[to be added] client colors
 
 ## Other things to do:
 <p>-Finish making the repo thing lol
